@@ -22,7 +22,8 @@ class MainRepository @Inject constructor(
                 lat = lat,
                 lon = lon,
                 key = config.weatherApiKey,
-                units = config.units
+                units = config.units,
+                lang = config.language
             )
             emit(Resource.success(currentWeather))
         } catch (e: Exception) {

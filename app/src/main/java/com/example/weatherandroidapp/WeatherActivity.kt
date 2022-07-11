@@ -71,7 +71,7 @@ class WeatherActivity: AppCompatActivity() {
     }
 
     fun setUI(currentWeather: CurrentWeather){
-        findViewById<TextView>(R.id.text).text = currentWeather.main.toString()
+        findViewById<TextView>(R.id.text).text = currentWeather.weather[0].description
 
     }
 
