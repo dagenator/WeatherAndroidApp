@@ -1,5 +1,6 @@
 package com.example.weatherandroidapp.core.di
 
+import com.example.weatherandroidapp.core.retrofit.UVApi
 import com.example.weatherandroidapp.core.retrofit.WeatherMapApi
 import dagger.Module
 import dagger.Provides
@@ -13,13 +14,21 @@ class NetworkModule {
 
     //@Singleton
     @Provides
-    fun getRetrofit(): WeatherMapApi {
-        val BASE_URL = "https://api.openweathermap.org/"
+    fun provideWeatherRetrofit(): WeatherMapApi {
         return Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl("https://api.openweathermap.org/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(WeatherMapApi::class.java)
+    }
+
+    @Provides
+    fun provideUVRetrofit(): UVApi {
+        return Retrofit.Builder()
+            .baseUrl("https://api.openuv.io/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(UVApi::class.java)
     }
 
 }

@@ -1,7 +1,7 @@
 package com.example.weatherandroidapp.core.di
 
 import android.content.Context
-import com.example.weatherandroidapp.data.models.WeatherConfig
+import com.example.weatherandroidapp.data.models.ConfigForApi
 import dagger.Module
 import dagger.Provides
 
@@ -14,10 +14,11 @@ class AppModule(private val context: Context) {
     }
 
     @Provides
-    fun provideWeatherConfig():WeatherConfig {
-        return WeatherConfig(
+    fun provideWeatherConfig():ConfigForApi {
+        return ConfigForApi(
             "13e0b633f5a548ced04584af8d6c7213",
-            "metric"
+            "metric",
+            "24009c857de07fa89174b98430fee065"
         )
     }
 
