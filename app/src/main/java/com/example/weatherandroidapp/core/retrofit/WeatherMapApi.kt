@@ -14,4 +14,3 @@ interface WeatherMapApi {
         @Query("lang") lang: String
     ): CurrentWeather
 }
-//https://api.openweathermap.org/

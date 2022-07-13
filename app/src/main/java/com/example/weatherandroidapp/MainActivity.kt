@@ -6,14 +6,11 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.example.weatherandroidapp.core.app.App
-import com.example.weatherandroidapp.core.factory.MainViewModelFactory
-import com.example.weatherandroidapp.presenter.MainViewModel
 import com.example.weatherandroidapp.utils.Resource
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -21,7 +18,6 @@ import com.google.android.gms.tasks.Task
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 
 class MainActivity : AppCompatActivity() {
@@ -38,7 +34,10 @@ class MainActivity : AppCompatActivity() {
             intent.putExtra("STATUS", it.status.toString())
             intent.putExtra(
                 "LOCATION_RESULT",
-                if (it.data == null) doubleArrayOf(0.0, 0.0) else doubleArrayOf(it.data.latitude, it.data.longitude)
+                if (it.data == null) doubleArrayOf(0.0, 0.0) else doubleArrayOf(
+                    it.data.latitude,
+                    it.data.longitude
+                )
             )
             intent.putExtra("ERROR_MESSAGE", it.message)
             startActivity(intent)
