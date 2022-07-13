@@ -35,7 +35,7 @@ class WeatherActivity : AppCompatActivity() {
         }
     }
 
-    var UVObserver = Observer<UVInfo> {
+    private var UVObserver = Observer<UVInfo> {
         it?.let {
             setUVInfo(it)
         }
@@ -65,7 +65,7 @@ class WeatherActivity : AppCompatActivity() {
             if (Status.valueOf(it) == Status.SUCCESS) {
                 location?.let {
                     viewModel.getCurrentWeather(it[0], it[1])
-                    viewModel.getUVinfo(it[0], it[1])
+                    //viewModel.getUVinfo(it[0], it[1])
                 }
             } else {
                 message?.let { message ->
@@ -76,27 +76,31 @@ class WeatherActivity : AppCompatActivity() {
 
     }
 
-    fun setError(visible: Boolean, message: String?) {
+    private fun setError(visible: Boolean, message: String?) {
         binding.error.text =message
         binding.error.visibility = if(visible) View.VISIBLE else View.GONE
 
     }
 
-    fun setUI(currentWeather: CurrentWeather) {
+    private fun setUI(currentWeather: CurrentWeather) {
         binding.error.visibility = View.GONE
         val images =viewModel.getImageStateSet((currentWeather.weather.first().id).toInt())
+        binding.city.text = currentWeather.name
         binding.background.background = AppCompatResources.getDrawable(this, images.background)
         binding.weatherIcon.setImageDrawable(AppCompatResources.getDrawable(this, images.icon))
         binding.temp.text = currentWeather.main.temp.toString() + "°C"
         binding.fellsTemp.text = currentWeather.main.feelsLike.toString() + "°C"
         binding.wind.text = currentWeather.wind.speed.toString() + "м/с"
+        binding.cloudiness.text = currentWeather.clouds.all.toString() + "%"
+
+        binding.comments.background =AppCompatResources.getDrawable(this, images.background)
 
 
 
     }
 
-    fun setUVInfo(uvInfo: UVInfo) {
-        binding.UV.text = uvInfo.uvMax.toString()
+    private fun setUVInfo(uvInfo: UVInfo) {
+        binding.UV.text =  "0.0"//uvInfo.uvMax.toString()
     }
 
 
