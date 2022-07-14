@@ -109,7 +109,7 @@ class MainActivity : AppCompatActivity() {
             this.registerForActivityResult(
                 ActivityResultContracts.RequestMultiplePermissions()
             ) { isGranted: Map<String, Boolean> ->
-                isPermissionGet.value = isGranted.values.contains(false)
+                isPermissionGet.value = !isGranted.values.contains(false)
             }
 
 
@@ -122,18 +122,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getLastLocation(): Task<Location>? {
-        when {
+        if (
             ContextCompat.checkSelfPermission(
                 this.applicationContext,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED &&
-                    ContextCompat.checkSelfPermission(
-                        this.applicationContext,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                    ) == PackageManager.PERMISSION_GRANTED
-            -> {
-                return mFusedLocationClient.lastLocation
-            }
+            ContextCompat.checkSelfPermission(
+                this.applicationContext,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            return mFusedLocationClient.lastLocation
         }
         return null
     }

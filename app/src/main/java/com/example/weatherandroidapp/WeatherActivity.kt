@@ -6,12 +6,16 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.weatherandroidapp.core.app.App
 import com.example.weatherandroidapp.core.factory.MainViewModelFactory
 import com.example.weatherandroidapp.data.models.CurrentWeather
 import com.example.weatherandroidapp.data.models.UVInfo
+import com.example.weatherandroidapp.data.models.WeatherDescriptionItem
 import com.example.weatherandroidapp.databinding.ActivityWeatherBinding
 import com.example.weatherandroidapp.presenter.MainViewModel
+import com.example.weatherandroidapp.presenter.WeatherDescriptionAdapter
 import com.example.weatherandroidapp.utils.Status
 import javax.inject.Inject
 
@@ -65,7 +69,7 @@ class WeatherActivity : AppCompatActivity() {
             if (Status.valueOf(it) == Status.SUCCESS) {
                 location?.let {
                     viewModel.getCurrentWeather(it[0], it[1])
-                    //viewModel.getUVinfo(it[0], it[1])
+                    viewModel.getUVinfo(it[0], it[1])
                 }
             } else {
                 message?.let { message ->
@@ -92,15 +96,24 @@ class WeatherActivity : AppCompatActivity() {
         binding.fellsTemp.text = currentWeather.main.feelsLike.toString() + "°C"
         binding.wind.text = currentWeather.wind.speed.toString() + "м/с"
         binding.cloudiness.text = currentWeather.clouds.all.toString() + "%"
+        binding.recyclerViewHolder.background =AppCompatResources.getDrawable(this, images.background)
 
-        binding.comments.background =AppCompatResources.getDrawable(this, images.background)
+        val description = arrayOf(
+            WeatherDescriptionItem(R.drawable.ic_temp_high_icon , currentWeather.main.tempMax.toString()+"°C"),
+            WeatherDescriptionItem(R.drawable.ic_temp_low_icon , currentWeather.main.tempMin.toString()+"°C"),
+            WeatherDescriptionItem(images.icon, currentWeather.weather[0].description))
 
+        setInfoRecyclerView(description)
+    }
 
-
+    private fun setInfoRecyclerView(description: Array<WeatherDescriptionItem> ){
+        val recyclerView = findViewById<RecyclerView>(R.id.description_recycler)
+        val weatherDescriptionAdapter = WeatherDescriptionAdapter(this, description)
+        recyclerView.adapter = weatherDescriptionAdapter
     }
 
     private fun setUVInfo(uvInfo: UVInfo) {
-        binding.UV.text =  "0.0"//uvInfo.uvMax.toString()
+        binding.UV.text =  uvInfo.uvMax.toString()
     }
 
 
