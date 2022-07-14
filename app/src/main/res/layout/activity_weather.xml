@@ -23,14 +23,19 @@
                 android:id="@+id/error"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@color/black"
+                android:alpha="0.5"
+                android:background="@drawable/info_part_background"
                 android:textColor="@color/white"
                 android:textSize="30sp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
+                android:layout_margin="20dp"
                 tools:text="error" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/main_weather_widget"
                 android:layout_width="120dp"
                 android:layout_height="400dp"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -199,9 +204,6 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/background"
             >
-
-
-
             <androidx.constraintlayout.widget.ConstraintLayout
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

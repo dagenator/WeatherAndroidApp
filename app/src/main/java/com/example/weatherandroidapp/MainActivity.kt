@@ -24,8 +24,6 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var mFusedLocationClient: FusedLocationProviderClient
 
-    private val isPermissionGet: MutableLiveData<Boolean> = MutableLiveData(false)
-
     private val locationResultLiveData: MutableLiveData<Resource<Location>> = MutableLiveData(null)
 
     private val locationResultObserver = Observer<Resource<Location>> {
@@ -58,38 +56,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun getLastLocationWithPermissionCheck() {
-        //TODO refactoring
-
-        var isGranted: Boolean = false
-        val observer = Observer<Boolean> { isGranted = it }
 
         try {
             var location = getLastLocation()
             if (location == null) {
-                isPermissionGet.observeForever { observer }
                 askForLocalPermission()
-                isPermissionGet.removeObserver { observer }
-
-                if (!isGranted) {
-                    locationResultLiveData.value = Resource.error(
-                        null,
-                        "Не можем получить местоположение, разрешения не были даны"
-                    )
-                } else {
-                    location = getLastLocation()
-                    if (location == null)
-                        locationResultLiveData.value = Resource.error(
-                            null,
-                            "Произошла ошибка получения местоположения. Может вы не дали все необходимые разрешения?"
-                        )
-                    else {
-                        location.addOnCompleteListener {
-                            CoroutineScope(Dispatchers.IO).launch {
-                                locationResultLiveData.value = Resource.success(it.result)
-                            }
-                        }
-                    }
-                }
             } else {
                 location.addOnCompleteListener {
                     CoroutineScope(Dispatchers.IO).launch {
@@ -100,8 +71,29 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
             locationResultLiveData.value = Resource.error(null, e.message.toString())
         }
+    }
 
-
+    private fun checkAskingResult(isGranted: Boolean) {
+        if (!isGranted) {
+            locationResultLiveData.value = Resource.error(
+                null,
+                "Не можем получить местоположение, разрешения не были даны"
+            )
+        } else {
+            val location = getLastLocation()
+            if (location == null)
+                locationResultLiveData.value = Resource.error(
+                    null,
+                    "Произошла ошибка получения местоположения. Может вы не дали все необходимые разрешения?"
+                )
+            else {
+                location.addOnCompleteListener {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        locationResultLiveData.postValue(Resource.success(it.result))
+                    }
+                }
+            }
+        }
     }
 
     private fun askForLocalPermission() {
@@ -109,7 +101,7 @@ class MainActivity : AppCompatActivity() {
             this.registerForActivityResult(
                 ActivityResultContracts.RequestMultiplePermissions()
             ) { isGranted: Map<String, Boolean> ->
-                isPermissionGet.value = !isGranted.values.contains(false)
+                checkAskingResult(!isGranted.values.contains(false))
             }
 
 

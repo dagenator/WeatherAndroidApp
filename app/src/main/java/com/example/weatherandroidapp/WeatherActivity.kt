@@ -116,5 +116,12 @@ class WeatherActivity : AppCompatActivity() {
         binding.UV.text =  uvInfo.uvMax.toString()
     }
 
+    private fun setUIPermissionDeny(message: String){
+        binding.mainWeatherWidget.visibility = View.GONE
+        binding.recyclerViewHolder.visibility = View.GONE
+        binding.background.background = AppCompatResources.getDrawable(this, R.drawable.night_sky)
+        setError(true, message)
+
+    }
 
 }
