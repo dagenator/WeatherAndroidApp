@@ -56,7 +56,7 @@ class MainViewModel @Inject constructor(val repository: MainRepository) : ViewMo
             in 600..601, 620 -> return ImageStateSet(weatherId, R.drawable.snow, R.drawable.ic_snow_icon)
             602, 621, 622 -> return ImageStateSet(weatherId, R.drawable.snow, R.drawable.ic_heavy_snow)
             in 700..799 -> return ImageStateSet(weatherId, R.drawable.mist, R.drawable.ic_mist_icon)
-            800-> return ImageStateSet(weatherId, R.drawable.clear_sky, R.drawable.clear_sky)
+            800-> return ImageStateSet(weatherId, R.drawable.clear_sky, R.drawable.ic_clear_sky_icon)
             801-> return ImageStateSet(weatherId, R.drawable.few_clouds, R.drawable.ic_few_clouds_icon)
             802-> return ImageStateSet(weatherId, R.drawable.scattered_clouds, R.drawable.ic_scattered_clouds_icon)
             803-> return ImageStateSet(weatherId, R.drawable.clouds, R.drawable.ic_clouds_icon)

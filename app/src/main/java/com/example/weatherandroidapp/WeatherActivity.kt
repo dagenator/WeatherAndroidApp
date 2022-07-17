@@ -73,7 +73,7 @@ class WeatherActivity : AppCompatActivity() {
                 }
             } else {
                 message?.let { message ->
-                    setError(visible = true, message)
+                    setUIPermissionDeny(message)
                 }
             }
         }
@@ -90,13 +90,12 @@ class WeatherActivity : AppCompatActivity() {
         binding.error.visibility = View.GONE
         val images =viewModel.getImageStateSet((currentWeather.weather.first().id).toInt())
         binding.city.text = currentWeather.name
-        binding.background.background = AppCompatResources.getDrawable(this, images.background)
+        binding.mainBackground.background = AppCompatResources.getDrawable(this, images.background)
         binding.weatherIcon.setImageDrawable(AppCompatResources.getDrawable(this, images.icon))
         binding.temp.text = currentWeather.main.temp.toString() + "°C"
         binding.fellsTemp.text = currentWeather.main.feelsLike.toString() + "°C"
         binding.wind.text = currentWeather.wind.speed.toString() + "м/с"
         binding.cloudiness.text = currentWeather.clouds.all.toString() + "%"
-        binding.recyclerViewHolder.background =AppCompatResources.getDrawable(this, images.background)
 
         val description = arrayOf(
             WeatherDescriptionItem(R.drawable.ic_temp_high_icon , currentWeather.main.tempMax.toString()+"°C"),
@@ -107,9 +106,8 @@ class WeatherActivity : AppCompatActivity() {
     }
 
     private fun setInfoRecyclerView(description: Array<WeatherDescriptionItem> ){
-        val recyclerView = findViewById<RecyclerView>(R.id.description_recycler)
         val weatherDescriptionAdapter = WeatherDescriptionAdapter(this, description)
-        recyclerView.adapter = weatherDescriptionAdapter
+        binding.bottomSheet.descriptionRecycler.adapter = weatherDescriptionAdapter
     }
 
     private fun setUVInfo(uvInfo: UVInfo) {
@@ -118,10 +116,9 @@ class WeatherActivity : AppCompatActivity() {
 
     private fun setUIPermissionDeny(message: String){
         binding.mainWeatherWidget.visibility = View.GONE
-        binding.recyclerViewHolder.visibility = View.GONE
-        binding.background.background = AppCompatResources.getDrawable(this, R.drawable.night_sky)
+        binding.bottomSheet.bottomSheet.visibility = View.GONE
+        binding.mainBackground.background = AppCompatResources.getDrawable(this, R.drawable.night_sky)
         setError(true, message)
-
     }
 
 }
