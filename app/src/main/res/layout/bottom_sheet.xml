@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/bottom_sheet"
     android:layout_width="match_parent"
-    android:layout_height="240dp"
+    android:layout_height="265dp"
     android:orientation="vertical"
     app:behavior_hideable="false"
-    app:behavior_peekHeight="40dp"
+    app:behavior_peekHeight="35dp"
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
 
@@ -22,7 +22,7 @@
             app:layout_constraintStart_toStartOf="parent"
             android:id="@+id/description_background"
             android:layout_width="match_parent"
-            android:layout_height="240dp"
+            android:layout_height="265dp"
             android:background = "@drawable/bottom_sheet_background"
             android:alpha="0.6"/>
         <ImageView

@@ -7,6 +7,7 @@ import com.example.weatherandroidapp.R
 import com.example.weatherandroidapp.data.models.CurrentWeather
 import com.example.weatherandroidapp.data.models.ImageStateSet
 import com.example.weatherandroidapp.data.models.Result
+import com.example.weatherandroidapp.data.models.UVInfo
 import com.example.weatherandroidapp.data.repository.MainRepository
 import com.example.weatherandroidapp.utils.Resource
 import kotlinx.coroutines.launch
@@ -16,7 +17,7 @@ class MainViewModel @Inject constructor(val repository: MainRepository) : ViewMo
 
     val currentWeatherLiveData: MutableLiveData<Resource<CurrentWeather>> = MutableLiveData(null)
     val errorLiveData: MutableLiveData<String> = MutableLiveData(null)
-    val UVInfoLiveData: MutableLiveData<Resource<Result>> = MutableLiveData(null)
+    val UVInfoLiveData: MutableLiveData<Resource<UVInfo>> = MutableLiveData(null)
 
     fun getCurrentWeather(lat: Double, lon: Double) {
         viewModelScope.launch {

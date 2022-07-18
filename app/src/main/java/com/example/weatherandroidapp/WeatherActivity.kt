@@ -10,6 +10,7 @@ import com.example.weatherandroidapp.core.app.App
 import com.example.weatherandroidapp.core.factory.MainViewModelFactory
 import com.example.weatherandroidapp.data.models.CurrentWeather
 import com.example.weatherandroidapp.data.models.Result
+import com.example.weatherandroidapp.data.models.UVInfo
 import com.example.weatherandroidapp.data.models.WeatherDescriptionItem
 import com.example.weatherandroidapp.databinding.ActivityWeatherBinding
 import com.example.weatherandroidapp.presenter.MainViewModel
@@ -46,11 +47,11 @@ class WeatherActivity : AppCompatActivity() {
         }
     }
 
-    private var UVObserver = Observer<Resource<Result>> {
+    private var UVObserver = Observer<Resource<UVInfo>> {
         it?.let {
             when (it.status) {
                 Status.LOADING -> {}
-                Status.SUCCESS -> it.data?.let { setUVInfo(it) }
+                Status.SUCCESS -> it.data?.let { setUVInfo(it.result) }
                 Status.ERROR -> it.message?.let { setError(true, it) }
             }
         }
@@ -81,7 +82,7 @@ class WeatherActivity : AppCompatActivity() {
                 location?.let { weather ->
                     CoroutineScope(Dispatchers.IO).launch {
                         viewModel.getCurrentWeather(weather[0], weather[1])
-                        viewModel.getUVinfo(weather[0], weather[1])
+                        //viewModel.getUVinfo(weather[0], weather[1])
                     }
                 }
             } else {
@@ -116,7 +117,7 @@ class WeatherActivity : AppCompatActivity() {
         binding.fellsTemp.text = currentWeather.main.feelsLike.toString() + "°C"
         binding.wind.text = currentWeather.wind.speed.toString() + "м/с"
         binding.cloudiness.text = currentWeather.clouds.all.toString() + "%"
-
+        setInfoRecyclerView()
 
     }
 
@@ -146,8 +147,12 @@ class WeatherActivity : AppCompatActivity() {
             description.addAll(
                 arrayOf(
                     WeatherDescriptionItem(
+                        R.drawable.ic_sun_uv_icon,
+                        "Макс УФ Индекс: " + it.result.uvMax
+                    ),
+                    WeatherDescriptionItem(
                         R.drawable.ic_sun_protection_icon,
-                        "Макс УФ Индекс:" + it.uvMax
+                        viewModel.UVDescription(it.result.uvMax.toInt())
                     )
                 )
             )
@@ -158,7 +163,7 @@ class WeatherActivity : AppCompatActivity() {
     }
 
     private fun setUVInfo(uvInfo: Result) {
-        binding.UV.text = uvInfo.uvMax.toString()
+        binding.UV.text = uvInfo.uv.toString()
         setInfoRecyclerView()
     }
 
