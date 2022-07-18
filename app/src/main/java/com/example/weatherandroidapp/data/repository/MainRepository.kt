@@ -3,7 +3,7 @@ package com.example.weatherandroidapp.data.repository
 import com.example.weatherandroidapp.core.retrofit.UVApi
 import com.example.weatherandroidapp.core.retrofit.WeatherMapApi
 import com.example.weatherandroidapp.data.models.CurrentWeather
-import com.example.weatherandroidapp.data.models.UVInfo
+import com.example.weatherandroidapp.data.models.Result
 import com.example.weatherandroidapp.data.models.ConfigForApi
 import com.example.weatherandroidapp.utils.Resource
 import kotlinx.coroutines.flow.flow
@@ -31,7 +31,7 @@ class MainRepository @Inject constructor(
         }
     }
 
-    fun getUVInfo(lat:Double, lon:Double) = flow<Resource<UVInfo>> {
+    fun getUVInfo(lat:Double, lon:Double) = flow<Resource<Result>> {
         emit(Resource.loading(null))
         try {
             val uv = UVApi.getCurrentUV(
