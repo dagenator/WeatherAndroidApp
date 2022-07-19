@@ -3,7 +3,7 @@ package com.example.weatherandroidapp.data.models
 import com.google.gson.annotations.SerializedName
 
 data class Result (
-    val uv: Long,
+    val uv: Double,
 
     @SerializedName("uv_time")
     val uvTime: String,

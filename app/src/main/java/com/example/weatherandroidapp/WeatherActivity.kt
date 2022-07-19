@@ -6,6 +6,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.weatherandroidapp.core.app.App
 import com.example.weatherandroidapp.core.factory.MainViewModelFactory
 import com.example.weatherandroidapp.data.models.CurrentWeather
@@ -54,6 +55,7 @@ class WeatherActivity : AppCompatActivity() {
                 Status.SUCCESS -> it.data?.let { setUVInfo(it.result) }
                 Status.ERROR -> it.message?.let { setError(true, it) }
             }
+            setLoader(false)
         }
     }
 
@@ -68,7 +70,6 @@ class WeatherActivity : AppCompatActivity() {
 
         (applicationContext as App).appComponent.inject(this)
 
-
         val status = intent.getStringExtra("STATUS")
         val location = intent.getDoubleArrayExtra("LOCATION_RESULT")
         val message = intent.getStringExtra("ERROR_MESSAGE")
@@ -82,7 +83,7 @@ class WeatherActivity : AppCompatActivity() {
                 location?.let { weather ->
                     CoroutineScope(Dispatchers.IO).launch {
                         viewModel.getCurrentWeather(weather[0], weather[1])
-                        //viewModel.getUVinfo(weather[0], weather[1])
+                        viewModel.getUVinfo(weather[0], weather[1])
                     }
                 }
             } else {
@@ -97,8 +98,7 @@ class WeatherActivity : AppCompatActivity() {
     private fun setLoader(isLoad: Boolean) {
         binding.progressBar.visibility = if (isLoad) View.VISIBLE else View.GONE
         binding.mainWeatherWidget.visibility = if (isLoad) View.GONE else View.VISIBLE
-        binding.bottomSheet.bottomSheet.visibility = if (isLoad) View.GONE else View.VISIBLE
-
+        binding.recyclerViewHolder.visibility = if (isLoad) View.GONE else View.VISIBLE
     }
 
     private fun setError(visible: Boolean, message: String?) {
@@ -117,8 +117,8 @@ class WeatherActivity : AppCompatActivity() {
         binding.fellsTemp.text = currentWeather.main.feelsLike.toString() + "°C"
         binding.wind.text = currentWeather.wind.speed.toString() + "м/с"
         binding.cloudiness.text = currentWeather.clouds.all.toString() + "%"
-        setInfoRecyclerView()
-
+        binding.descriptionLabel.setImageDrawable(AppCompatResources.getDrawable(this, images.icon))
+        //setInfoRecyclerView()
     }
 
     private fun setInfoRecyclerView() {
@@ -138,7 +138,7 @@ class WeatherActivity : AppCompatActivity() {
                         currentWeather.main.tempMin.toString() + "°C"
                     ),
                     WeatherDescriptionItem(images.icon, currentWeather.weather[0].description)
-                )
+                 )
             )
         }
 
@@ -159,7 +159,13 @@ class WeatherActivity : AppCompatActivity() {
         }
 
         val weatherDescriptionAdapter = WeatherDescriptionAdapter(this, description.toTypedArray())
-        binding.bottomSheet.descriptionRecycler.adapter = weatherDescriptionAdapter
+        val lp = binding.recyclerViewHolder.layoutParams
+        lp.height += 160 * description.size
+        binding.recyclerViewHolder.layoutParams = lp
+        binding.descriptionRecycler.layoutManager = LinearLayoutManager(this)
+        binding.descriptionRecycler.adapter = weatherDescriptionAdapter
+
+
     }
 
     private fun setUVInfo(uvInfo: Result) {
@@ -169,7 +175,7 @@ class WeatherActivity : AppCompatActivity() {
 
     private fun setUIPermissionDeny(message: String) {
         binding.mainWeatherWidget.visibility = View.GONE
-        binding.bottomSheet.bottomSheet.visibility = View.GONE
+        binding.recyclerViewHolder.visibility = View.GONE
         binding.mainBackground.background =
             AppCompatResources.getDrawable(this, R.drawable.night_sky)
         setError(true, message)
