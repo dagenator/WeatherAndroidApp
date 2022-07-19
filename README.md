@@ -3,6 +3,9 @@ Simple Weather Android App based on
 - openweathermap.org 
 - https://www.openuv.io/
 
+
+![photo_2022-07-19_13-12-55](https://user-images.githubusercontent.com/37955869/179701391-43c10373-b40d-4b65-bb59-10bb8fc57463.jpg)
+
 ![Untitled video — сделано в Clipchamp](https://user-images.githubusercontent.com/37955869/179700872-22287b34-3493-4773-8042-95007fe7ccc9.gif)
 
 
