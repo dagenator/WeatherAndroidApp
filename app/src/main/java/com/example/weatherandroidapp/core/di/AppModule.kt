@@ -18,7 +18,7 @@ class AppModule(private val context: Context) {
         return ConfigForApi(
             "13e0b633f5a548ced04584af8d6c7213",
             "metric",
-            "24009c857de07fa89174b98430fee065",
+            "d55ba650a4f56631ccee55b698718ea5",
             "ru"
         )
     }
