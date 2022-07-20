@@ -66,6 +66,7 @@ class WeatherActivity : AppCompatActivity() {
         binding = ActivityWeatherBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setLoader(true)
         supportActionBar?.hide()
 
         (applicationContext as App).appComponent.inject(this)
@@ -104,6 +105,7 @@ class WeatherActivity : AppCompatActivity() {
     private fun setError(visible: Boolean, message: String?) {
         binding.error.text = message
         binding.error.visibility = if (visible) View.VISIBLE else View.GONE
+        setLoader(false)
 
     }
 
@@ -179,6 +181,7 @@ class WeatherActivity : AppCompatActivity() {
         binding.mainBackground.background =
             AppCompatResources.getDrawable(this, R.drawable.night_sky)
         setError(true, message)
+        setLoader(false)
     }
 
 }
