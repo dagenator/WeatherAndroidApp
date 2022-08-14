@@ -1,6 +1,8 @@
 package com.example.weatherandroidapp
 
 import android.Manifest
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
@@ -12,6 +14,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.example.weatherandroidapp.core.app.App
 import com.example.weatherandroidapp.utils.Resource
+import com.example.weatherandroidapp.widget.WeatherWidgetProvider
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.Task
@@ -28,38 +31,51 @@ class MainActivity : AppCompatActivity() {
 
     private val locationResultObserver = Observer<Resource<Location>> {
         it?.let {
-            val intent = Intent(this, WeatherActivity::class.java)
-            intent.putExtra("STATUS", it.status.toString())
-            intent.putExtra(
+            val weatherIntent = Intent(this, WeatherActivity::class.java)
+            weatherIntent.putExtra("STATUS", it.status.toString())
+            weatherIntent.putExtra(
                 "LOCATION_RESULT",
                 if (it.data == null) doubleArrayOf(0.0, 0.0) else doubleArrayOf(
                     it.data.latitude,
                     it.data.longitude
                 )
             )
-            intent.putExtra("ERROR_MESSAGE", it.message)
-            startActivity(intent)
+            weatherIntent.putExtra("ERROR_MESSAGE", it.message)
+
+            if (intent.action == WeatherWidgetProvider.WEATHER_UPDATE_ACTION) {
+                weatherIntent.putExtra(
+                    "IS_WITHOUT_UI", true
+                )
+            }
+            startActivity(weatherIntent)
         }
     }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         (applicationContext as App).appComponent.inject(this)
 
         locationResultLiveData.observe(this, locationResultObserver)
+
         getLastLocationWithPermissionCheck()
 
+        if (intent.action == WeatherWidgetProvider.WEATHER_UPDATE_ACTION) {
+            getLastLocationWithPermissionCheck(true)
+            finish()
+        }
+
+        setContentView(R.layout.activity_main)
     }
 
-    fun getLastLocationWithPermissionCheck() {
-
+    fun getLastLocationWithPermissionCheck(askPermisson: Boolean = false) {
         try {
             var location = getLastLocation()
             if (location == null) {
+                if (askPermisson)
+                    throw Exception("Разрешения не были даны")
                 askForLocalPermission()
             } else {
                 location.addOnCompleteListener {
@@ -127,6 +143,24 @@ class MainActivity : AppCompatActivity() {
             return mFusedLocationClient.lastLocation
         }
         return null
+    }
+
+    companion object {
+
+        fun getUpdateWeatherInfoPendingIntent(
+            context: Context,
+            action: String,
+            appWidgetId: Int
+        ): PendingIntent {
+            val intent = Intent(context, WeatherWidgetProvider::class.java)
+            intent.action = action
+            intent.putExtra("id", appWidgetId)
+
+            return PendingIntent.getBroadcast(
+                context, appWidgetId, intent,
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        }
     }
 
 }

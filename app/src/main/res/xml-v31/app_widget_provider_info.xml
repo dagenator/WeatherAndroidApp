@@ -1,7 +1,9 @@
 <appwidget-provider
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:targetCellWidth="2"
+    android:targetCellHeight="1"
+    android:initialKeyguardLayout="@layout/weather_widget"
     android:initialLayout="@layout/weather_widget"
-    android:minHeight="40dp"
-    android:minWidth="190dp"
+    android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="2400000">
 </appwidget-provider>

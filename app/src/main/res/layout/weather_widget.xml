@@ -1,182 +1,161 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="400dp"
-    android:layout_height="200dp"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@drawable/info_part_background"
-    android:alpha="0.5"
-    android:orientation="vertical">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/city"
-        android:layout_height="25dp"
-        android:layout_width="380dp"
-        tools:text = "Челябинск"
-        android:textColor="@color/white"
-        android:textSize="20sp"
-        android:textAlignment="center"
-        android:layout_marginTop="5dp"
-        android:layout_marginHorizontal="10dp"
-
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/info_part_background"
+        android:alpha="0.5"
         />
+
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal"
-        >
+        android:orientation="horizontal">
 
         <LinearLayout
-            android:layout_width="160dp"
-            android:layout_height="170dp"
-            android:orientation="vertical"
-            >
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.45"
+            android:orientation="vertical">
 
             <ImageView
-                android:id="@+id/weather_icon"
-                android:layout_height="110dp"
+                android:id="@+id/weather_widget_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="0.4"
+                android:src="@drawable/ic_clear_sky_icon"
+                app:tint="@color/white" />
+
+            <TextView
+                android:id="@+id/widget_current_degree"
                 android:layout_width="match_parent"
-                android:src="@drawable/ic_heavy_rain_icon"
-                app:tint="@color/white"
-                />
+                android:layout_height="0dp"
+                android:layout_weight="0.2"
+                tools:text= "10 c"
+                android:gravity="center"
+                android:textColor="@color/white"/>
+
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                >
+                android:layout_height="0dp"
+                android:layout_weight="0.2"
+                android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/max_degree"
-                    android:layout_height="40dp"
-                    android:layout_width="80dp"
-                    tools:text = "10 C"
+                    android:id="@+id/widget_max_degree"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.5"
                     android:textColor="@color/white"
-                    android:textSize="28sp"
-                    android:textAlignment="center"
-                    android:layout_marginVertical="8dp"
-                    >
-                </TextView>
+                    tools:text="10 c"
+                    android:gravity="center"/>
 
                 <TextView
-                    android:id="@+id/min_degree"
-                    android:layout_height="40dp"
-                    android:layout_width="80dp"
-                    tools:text = "10 C"
+                    android:id="@+id/widget_min_degree"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.5"
                     android:textColor="@color/white"
-                    android:textSize="28sp"
-                    android:textAlignment="center"
-                    android:layout_marginVertical="8dp"
-                    />
-
+                    tools:text="10 c"
+                    android:gravity="center"/>
             </LinearLayout>
-
-
 
         </LinearLayout>
 
-
         <LinearLayout
-            android:layout_width="120dp"
-            android:layout_height="170dp"
-            android:orientation="vertical">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="85dp"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:layout_width="60dp"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/ic_sun_uv_icon"
-                    app:tint="@color/white" />
-
-                <TextView
-                    android:id="@+id/current_UV"
-                    android:layout_width="60dp"
-                    android:layout_height="match_parent"
-                    tools:text="9.66"
-                    android:textColor="@color/white"
-                    android:gravity="center"
-                    android:textSize="25dp"
-
-                    />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="85dp"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:layout_width="60dp"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/ic_sun_protection_icon"
-                    app:tint="@color/white" />
-
-                <TextView
-                    android:id="@+id/max_UV"
-                    android:layout_width="60dp"
-                    android:layout_height="match_parent"
-                    tools:text="9.66"
-                    android:textColor="@color/white"
-                    android:gravity="center"
-                    android:textSize="25dp"
-
-                    />
-
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="120dp"
-            android:layout_height="170dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.15"
             android:orientation="vertical">
 
-            <LinearLayout
+            <ImageView
                 android:layout_width="match_parent"
-                android:layout_height="85dp"
-                android:orientation="horizontal">
+                android:layout_height="0dp"
+                android:layout_weight="0.3"
+                android:src="@drawable/ic_wind_icon"
+                app:tint="@color/white" />
 
-                <ImageView
-                    android:layout_width="60dp"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/ic_wind_icon"
-                    android:padding="8dp"
-                    app:tint="@color/white" />
-
-                <TextView
-                    android:id="@+id/wind"
-                    android:layout_width="60dp"
-                    android:layout_height="match_parent"
-                    tools:text="9.66"
-                    android:textColor="@color/white"
-                    android:gravity="center"
-                    android:textSize="25dp"
-
-                    />
-
-            </LinearLayout>
-
-            <ImageButton
-                android:id="@+id/weather_reload_button"
+            <ImageView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="12dp"
-                android:backgroundTint="@color/black"
-                android:src="@drawable/ic_baseline_replay_24"
+                android:layout_height="0dp"
+                android:layout_weight="0.3"
+                android:src="@drawable/ic_sun_uv_icon"
+                app:tint="@color/white" />
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.3"
+                android:src="@drawable/ic_sun_protection_icon"
                 app:tint="@color/white" />
 
 
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.30"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/widget_wind"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.3"
+                android:gravity="center"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                tools:text="3 мс" />
+
+            <TextView
+                android:id="@+id/widget_current_UV"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.3"
+                android:gravity="center"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                tools:text="3 мс" />
+
+            <TextView
+                android:id="@+id/widget_max_UV"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.3"
+                android:gravity="center"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                tools:text="3 мс" />
+
 
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.1"
+            android:orientation="vertical">
+
+            <ImageButton
+                android:id="@+id/widget_reload_button"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                style = "@color/material_dynamic_neutral_variant40"
+                android:alpha="0.5"
+                android:src="@drawable/ic_baseline_replay_24"
+                app:tint="@color/white" />
+
+        </LinearLayout>
 
 
     </LinearLayout>
 
 
-
-
-
-</LinearLayout>
+</RelativeLayout>
