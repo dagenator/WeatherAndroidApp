@@ -8,6 +8,9 @@ Simple Weather Android App based on
 
 ![Untitled video — сделано в Clipchamp](https://user-images.githubusercontent.com/37955869/179700872-22287b34-3493-4773-8042-95007fe7ccc9.gif)
 
+![image](https://user-images.githubusercontent.com/37955869/184540027-5ad2a6b3-c452-4e14-811d-e02bed993ced.png)
+
+
 
 Just Pet project for my own use and improvement my hard skills
 
