@@ -14,20 +14,20 @@ Simple Weather Android App based on
 
 Just Pet project for my own use and improvement my hard skills
 
-## Tech
+## Tech which I use 
 
 - DI (Dagger2)
 - ViewBinding
 - Retofit
 - MVVM
+- MVI
 - Clean Architecture
 - Async (Kotlin coroutines + flow)
+- SharedPreferences
 
 
 ## ToDo
-* Room
 * Settings
-* sharedPreferences
 * work with galery
 * Testing Unit Tests
 * Testing. Write some integration tests
