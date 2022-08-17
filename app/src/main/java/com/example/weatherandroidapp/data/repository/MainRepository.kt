@@ -1,12 +1,10 @@
 package com.example.weatherandroidapp.data.repository
 
+import android.appwidget.AppWidgetManager
 import android.content.Context
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat.startActivity
 import com.example.weatherandroidapp.core.retrofit.UVApi
 import com.example.weatherandroidapp.core.retrofit.WeatherMapApi
 import com.example.weatherandroidapp.data.models.CurrentWeather
-import com.example.weatherandroidapp.data.models.Result
 import com.example.weatherandroidapp.data.models.ConfigForApi
 import com.example.weatherandroidapp.data.models.UVInfo
 import com.example.weatherandroidapp.utils.Resource
@@ -62,7 +60,12 @@ class MainRepository @Inject constructor(
         if(widgetsIds.isEmpty()) return
 
         widgetsIds.forEach {
-            context.sendBroadcast(WeatherWidgetProvider.getUpdateWidgetIntent(context, it))
+            context.sendBroadcast(WeatherWidgetProvider.getUpdateWidgetIntentWithId(context, it))
         }
+    }
+
+    fun setCommonErrorInPreferences(error: String){
+        sharedPreferencesUtils.saveUVError(error)
+        sharedPreferencesUtils.saveWeatherError(error)
     }
 }

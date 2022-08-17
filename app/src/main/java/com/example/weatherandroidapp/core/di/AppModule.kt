@@ -3,6 +3,8 @@ package com.example.weatherandroidapp.core.di
 import android.content.Context
 import android.content.SharedPreferences
 import com.example.weatherandroidapp.data.models.ConfigForApi
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -29,6 +31,11 @@ class AppModule(private val context: Context) {
     @Provides
     fun provideSharedPreference(context: Context): SharedPreferences {
         return context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
+    }
+
+    @Provides
+    fun provideFusedLocationProviderClient(context: Context): FusedLocationProviderClient{
+        return LocationServices.getFusedLocationProviderClient(context)
     }
 
     companion object {
