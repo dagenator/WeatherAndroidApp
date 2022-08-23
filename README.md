@@ -32,4 +32,3 @@ Just Pet project for my own use and improvement my hard skills
 * Testing Unit Tests
 * Testing. Write some integration tests
 
-## Articles for different themes are in doc "articles"
