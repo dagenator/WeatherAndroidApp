@@ -15,16 +15,15 @@ class SharedPreferencesUtils @Inject constructor(
     private val divider = ','
 
 
-    fun saveNewWidgetId(id:Int){
+    fun saveNewWidgetId(id: Int) {
         val str = getListOfWidgetsIdInString()
-        if(str.contains(id.toString())){
-            if(str.isEmpty()) {
+        if (str.contains(id.toString())) {
+            if (str.isEmpty()) {
                 str.plus(id)
+            } else {
+                str.plus(divider + id)
             }
-            else{
-                str.plus(divider+id)
-            }
-        }else
+        } else
             return
 
 
@@ -35,27 +34,27 @@ class SharedPreferencesUtils @Inject constructor(
         }
     }
 
-    private fun getListOfWidgetsIdInString():String{
+    private fun getListOfWidgetsIdInString(): String {
         sharedPreferences.let {
-            return it.getString("widgetIdArray","") ?:""
+            return it.getString("widgetIdArray", "") ?: ""
         }
     }
 
-    fun getListOfWidgetsId():Array<Int>{
+    fun getListOfWidgetsId(): Array<Int> {
         val str = getListOfWidgetsIdInString()
 
-        return if(str.isEmpty()){
+        return if (str.isEmpty()) {
             arrayOf()
-        }else{
-            str.split(divider).map { x->x.toInt() }.toTypedArray()
+        } else {
+            str.split(divider).map { x -> x.toInt() }.toTypedArray()
         }
     }
 
-    fun deleteWidgetId(id:Int){
+    fun deleteWidgetId(id: Int) {
         val idArr = getListOfWidgetsId().toMutableList()
         idArr.remove(id)
 
-        var str = idArr.joinToString { x-> "${x}$divider" }
+        val str = idArr.joinToString { x -> "${x}$divider" }
 
         sharedPreferences.let {
             val myEdit: SharedPreferences.Editor = it.edit()
@@ -69,8 +68,8 @@ class SharedPreferencesUtils @Inject constructor(
         sharedPreferences.let {
             return it.getString("city", null)
         }
-
     }
+
 
     fun saveWeatherInfo(currentWeather: CurrentWeather) {
         sharedPreferences.let {
@@ -89,6 +88,7 @@ class SharedPreferencesUtils @Inject constructor(
             myEdit.commit()
         }
     }
+
 
     fun saveWeatherError(error: String) {
         sharedPreferences.let {
@@ -126,6 +126,8 @@ class SharedPreferencesUtils @Inject constructor(
         }
     }
 
+
+
     fun saveUVError(error: String) {
         sharedPreferences.let {
             val myEdit: SharedPreferences.Editor = it.edit()
@@ -142,7 +144,7 @@ class SharedPreferencesUtils @Inject constructor(
 
     fun getUVInfo(): WidgetUVInfo {
         sharedPreferences.let {
-            return  WidgetUVInfo(
+            return WidgetUVInfo(
                 it.getFloat("currentUV", 0.0F),
                 it.getFloat("maxUV", 0.0F)
             )

@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.weatherandroidapp">
 
-    <uses-permission android:name= "android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name= "android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -18,20 +18,27 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WeatherAndroidApp"
         tools:targetApi="31">
+
+        <service android:name=".UpdateWeatherService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.WEATHER_UPDATE_ACTION" />
+            </intent-filter>
+        </service>
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
+                <action android:name="android.intent.action.APPWIDGET_UPDATE" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".WeatherActivity">
-        </activity>
+        <activity android:name=".WeatherActivity" />
 
-        <receiver android:name=".widget.WeatherWidgetProvider"
+        <receiver
+            android:name=".widget.WeatherWidgetProvider"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

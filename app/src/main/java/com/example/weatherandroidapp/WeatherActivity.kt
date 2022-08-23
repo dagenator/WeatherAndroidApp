@@ -70,13 +70,10 @@ class WeatherActivity : AppCompatActivity() {
         val status = intent.getStringExtra("STATUS")
         val location = intent.getDoubleArrayExtra("LOCATION_RESULT")
         val message = intent.getStringExtra("ERROR_MESSAGE")
-        val isWithoutUi = intent.getStringExtra("IS_WITHOUT_UI")
 
-        if (isWithoutUi == null) {
-            viewModel.currentWeatherLiveData.observe(this, weatherObserver)
-            viewModel.errorLiveData.observe(this, errorObserver)
-            viewModel.UVInfoLiveData.observe(this, UVObserver)
-        }
+        viewModel.currentWeatherLiveData.observe(this, weatherObserver)
+        viewModel.errorLiveData.observe(this, errorObserver)
+        viewModel.UVInfoLiveData.observe(this, UVObserver)
 
         status?.let { it ->
             if (Status.valueOf(it) == Status.SUCCESS) {
@@ -84,6 +81,8 @@ class WeatherActivity : AppCompatActivity() {
                     CoroutineScope(Dispatchers.IO).launch {
                         viewModel.getCurrentWeather(weather[0], weather[1])
                         viewModel.getUVinfo(weather[0], weather[1])
+
+                    }.invokeOnCompletion {
                         viewModel.updateWidgets()
                     }
                 }
@@ -92,11 +91,6 @@ class WeatherActivity : AppCompatActivity() {
                     setUIPermissionDeny(message)
                 }
             }
-        }
-        isWithoutUi?.let {
-            //finish()
-
-            //WeatherWidgetProvider.getUpdateWidgetPendingIntent(this, WeatherWidgetProvider.WEATHER_UPDATE_ACTION, intent.getIntExtra("id", 0))
         }
 
         setContentView(binding.root)
@@ -115,7 +109,6 @@ class WeatherActivity : AppCompatActivity() {
         binding.error.text = message
         binding.error.visibility = if (visible) View.VISIBLE else View.GONE
         setLoader(false)
-
     }
 
     private fun setUI(currentWeather: CurrentWeather) {
@@ -175,8 +168,6 @@ class WeatherActivity : AppCompatActivity() {
         binding.recyclerViewHolder.layoutParams = lp
         binding.descriptionRecycler.layoutManager = LinearLayoutManager(this)
         binding.descriptionRecycler.adapter = weatherDescriptionAdapter
-
-
     }
 
     private fun setUVInfo(uvInfo: Result) {
@@ -192,7 +183,4 @@ class WeatherActivity : AppCompatActivity() {
         setError(true, message)
         setLoader(false)
     }
-
-
-
 }

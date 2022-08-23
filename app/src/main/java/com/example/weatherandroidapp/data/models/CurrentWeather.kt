@@ -1,7 +1,7 @@
 package com.example.weatherandroidapp.data.models
 
 data class CurrentWeather (
-    val coord: Coord,
+    val coord: Coordinations,
     val weather: List<Weather>,
     val base: String,
     val main: Main,

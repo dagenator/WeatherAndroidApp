@@ -12,11 +12,31 @@
         android:alpha="0.5"
         />
 
+    <TextView
+        android:id="@+id/weather_error"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:textSize="30sp"
+        android:textColor="@color/white"
+        android:gravity="center"
+        />
+    <TextView
+        android:id="@+id/uv_error"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:textSize="30sp"
+        android:textColor="@color/white"
+        android:gravity="center"
+        />
 
     <LinearLayout
+        android:id="@+id/whole_content_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal">
+
 
         <LinearLayout
             android:layout_width="0dp"
@@ -24,13 +44,24 @@
             android:layout_weight="0.45"
             android:orientation="vertical">
 
+            <TextView
+                android:id="@+id/widget_city"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.15"
+                tools:text="city"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:textSize="11sp"/>
+
             <ImageView
                 android:id="@+id/weather_widget_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
-                android:layout_weight="0.4"
+                android:layout_weight="0.45"
                 android:src="@drawable/ic_clear_sky_icon"
-                app:tint="@color/white" />
+                app:tint="@color/white"
+                android:padding="6dp"/>
 
             <TextView
                 android:id="@+id/widget_current_degree"
@@ -79,21 +110,24 @@
                 android:layout_height="0dp"
                 android:layout_weight="0.3"
                 android:src="@drawable/ic_wind_icon"
-                app:tint="@color/white" />
+                app:tint="@color/white"
+                android:padding="6dp"/>
 
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="0.3"
                 android:src="@drawable/ic_sun_uv_icon"
-                app:tint="@color/white" />
+                app:tint="@color/white"
+                android:padding="6dp"/>
 
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="0.3"
                 android:src="@drawable/ic_sun_protection_icon"
-                app:tint="@color/white" />
+                app:tint="@color/white"
+                android:padding="6dp"/>
 
 
         </LinearLayout>

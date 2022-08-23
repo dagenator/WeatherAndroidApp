@@ -1,15 +1,15 @@
 package com.example.weatherandroidapp.widget
 
-import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
-import com.example.weatherandroidapp.MainActivity
 import com.example.weatherandroidapp.R
+import com.example.weatherandroidapp.UpdateWeatherService
 import com.example.weatherandroidapp.core.di.AppModule
 import com.example.weatherandroidapp.utils.SharedPreferencesUtils
 import com.example.weatherandroidapp.utils.WeatherStateUtil
@@ -23,6 +23,18 @@ class WeatherWidgetProvider :
     override fun onReceive(context: Context?, intent: Intent?) {
         super.onReceive(context, intent)
         Log.d(LOG_TAG, intent?.action.toString())
+        intent?.let {
+            if(it.action.toString() == WIDGET_UPDATE){
+                val id = it.extras?.getInt("id")
+                id?.let {
+                    val widgetManager = AppWidgetManager.getInstance(context)
+                    context?.let {
+                        updateAppWidget(context, widgetManager, id)
+                    }
+                }
+            }
+
+        }
     }
 
     override fun onUpdate(
@@ -59,6 +71,7 @@ class WeatherWidgetProvider :
         appWidgetId: Int
     ) {
 
+        Log.i(LOG_TAG, "updateAppWidget: update start ")
         val sharedPreferencesUtils = SharedPreferencesUtils(
             context.getSharedPreferences(
                 AppModule.PREFERENCES,
@@ -73,7 +86,6 @@ class WeatherWidgetProvider :
             R.layout.weather_widget
         )
 
-        var error: String = " "
         val weatherError = sharedPreferencesUtils.getWeatherError()
         val UVError = sharedPreferencesUtils.getUVError()
 
@@ -84,12 +96,13 @@ class WeatherWidgetProvider :
 
             views.setOnClickPendingIntent(
                 R.id.widget_reload_button,
-                MainActivity.getUpdateWeatherInfoPendingIntent(
+                UpdateWeatherService.getStartUpdateWeatherServiceIntent(
                     context,
                     WEATHER_UPDATE_ACTION,
                     appWidgetId
                 )
             )
+            views.setViewVisibility(R.id.whole_content_layout, View.VISIBLE)
             views.setTextViewText(
                 R.id.widget_current_degree,
                 String.format("%s°C", weather.currentDegree.toInt())
@@ -107,52 +120,42 @@ class WeatherWidgetProvider :
             views.setTextViewText(R.id.widget_max_UV, String.format("%.1f", uv.maxUV))
 
             city.let {
-                views.setTextViewText(R.id.city, it)
+                views.setTextViewText(R.id.widget_city, it)
             }
 
             views.setImageViewResource(R.id.weather_widget_icon, weather.iconId)
 
         } else {
-            weatherError?.let {
-                error = it
-            }
-            UVError?.let {
-                error = it
+            weatherError?.let {weatherError->
+                views.setTextViewText(R.id.weather_error, weatherError)
+                views.setViewVisibility(R.id.weather_error, View.VISIBLE)
+
+                UVError?.let { uvError->
+                    if(weatherError != uvError){
+                        views.setTextViewText(R.id.uv_error, uvError)
+                        views.setViewVisibility(R.id.uv_error, View.VISIBLE)
+                    }
+                }
             }
 
-            views.setViewVisibility(R.id.widget_max_UV, View.GONE)
-            views.setViewVisibility(R.id.widget_max_degree, View.GONE)
-            views.setViewVisibility(R.id.widget_min_degree, View.GONE)
-            views.setViewVisibility(R.id.widget_wind, View.GONE)
-            views.setViewVisibility(R.id.widget_current_UV, View.GONE)
-            views.setTextViewText(R.id.widget_current_degree, error)
+            views.setViewVisibility(R.id.whole_content_layout, View.GONE)
         }
-
         appWidgetManager.updateAppWidget(appWidgetId, views)
-
     }
 
 
-
-
-
     companion object {
-        val WEATHER_UPDATE_ACTION = "WEATHER_UPDATE_ACTION"
+        const val WEATHER_UPDATE_ACTION = "WEATHER_UPDATE_ACTION"
+        const val WIDGET_UPDATE = "APPWIDGET_UPDATE"
 
-        val WIDGET_UPDATE = "APPWIDGET_UPDATE"
-
-
-        fun getUpdateWidgetIntent(
+        fun getUpdateWidgetIntentWithId(
             context: Context,
             appWidgetId: Int
         ): Intent {
             val intent = Intent(context, WeatherWidgetProvider::class.java)
             intent.action = WIDGET_UPDATE
             intent.putExtra("id", appWidgetId)
-
             return intent
         }
     }
-
-
 }
