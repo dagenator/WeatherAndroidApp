@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">WeatherAndroidApp</string>
+    <string name="app_name">Weather</string>
     <string name="feels_like_ru">Ощущается как</string>
     <string name="UV_index">УФ индекс</string>
     <string name="cloudiness_ru">Облачность</string>

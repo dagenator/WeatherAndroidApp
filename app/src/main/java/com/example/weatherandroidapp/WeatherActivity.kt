@@ -64,20 +64,19 @@ class WeatherActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         binding = ActivityWeatherBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        setLoader(true)
-        supportActionBar?.hide()
 
         (applicationContext as App).appComponent.inject(this)
 
         val status = intent.getStringExtra("STATUS")
         val location = intent.getDoubleArrayExtra("LOCATION_RESULT")
         val message = intent.getStringExtra("ERROR_MESSAGE")
+        val isWithoutUi = intent.getStringExtra("IS_WITHOUT_UI")
 
-        viewModel.currentWeatherLiveData.observe(this, weatherObserver)
-        viewModel.errorLiveData.observe(this, errorObserver)
-        viewModel.UVInfoLiveData.observe(this, UVObserver)
+        if (isWithoutUi == null) {
+            viewModel.currentWeatherLiveData.observe(this, weatherObserver)
+            viewModel.errorLiveData.observe(this, errorObserver)
+            viewModel.UVInfoLiveData.observe(this, UVObserver)
+        }
 
         status?.let { it ->
             if (Status.valueOf(it) == Status.SUCCESS) {
@@ -85,6 +84,7 @@ class WeatherActivity : AppCompatActivity() {
                     CoroutineScope(Dispatchers.IO).launch {
                         viewModel.getCurrentWeather(weather[0], weather[1])
                         viewModel.getUVinfo(weather[0], weather[1])
+                        viewModel.updateWidgets()
                     }
                 }
             } else {
@@ -93,7 +93,16 @@ class WeatherActivity : AppCompatActivity() {
                 }
             }
         }
+        isWithoutUi?.let {
+            //finish()
 
+            //WeatherWidgetProvider.getUpdateWidgetPendingIntent(this, WeatherWidgetProvider.WEATHER_UPDATE_ACTION, intent.getIntExtra("id", 0))
+        }
+
+        setContentView(binding.root)
+
+        setLoader(true)
+        supportActionBar?.hide()
     }
 
     private fun setLoader(isLoad: Boolean) {
@@ -120,7 +129,7 @@ class WeatherActivity : AppCompatActivity() {
         binding.wind.text = currentWeather.wind.speed.toString() + "м/с"
         binding.cloudiness.text = currentWeather.clouds.all.toString() + "%"
         binding.descriptionLabel.setImageDrawable(AppCompatResources.getDrawable(this, images.icon))
-        //setInfoRecyclerView()
+        setInfoRecyclerView()
     }
 
     private fun setInfoRecyclerView() {
@@ -140,12 +149,12 @@ class WeatherActivity : AppCompatActivity() {
                         currentWeather.main.tempMin.toString() + "°C"
                     ),
                     WeatherDescriptionItem(images.icon, currentWeather.weather[0].description)
-                 )
+                )
             )
         }
 
         val UV = viewModel.UVInfoLiveData.value?.data
-        UV?.let{
+        UV?.let {
             description.addAll(
                 arrayOf(
                     WeatherDescriptionItem(
@@ -183,5 +192,7 @@ class WeatherActivity : AppCompatActivity() {
         setError(true, message)
         setLoader(false)
     }
+
+
 
 }

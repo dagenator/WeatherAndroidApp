@@ -9,4 +9,5 @@ interface AppComponent {
 
     fun inject(mainActivity: MainActivity)
     fun inject(weatherActivity: WeatherActivity)
+
 }

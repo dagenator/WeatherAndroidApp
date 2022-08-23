@@ -20,6 +20,10 @@ class MainViewModel @Inject constructor(val repository: MainRepository, val weat
     val errorLiveData: MutableLiveData<String> = MutableLiveData(null)
     val UVInfoLiveData: MutableLiveData<Resource<UVInfo>> = MutableLiveData(null)
 
+    fun updateWidgets(){
+        repository.updateWidgets()
+    }
+
     fun getCurrentWeather(lat: Double, lon: Double) {
         viewModelScope.launch {
             repository.getCurrentWeather(lat = lat, lon = lon).collect {
