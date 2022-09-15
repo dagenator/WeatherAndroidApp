@@ -11,7 +11,8 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        app:tint="@color/white" />
+        app:tint="@color/white"
+        android:layout_margin="10dp"/>
 
     <TextView
         android:id="@+id/item_description"

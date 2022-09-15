@@ -1,13 +1,13 @@
 package com.example.weatherandroidapp.data.repository
 
-import android.appwidget.AppWidgetManager
 import android.content.Context
+import android.util.Log
 import com.example.weatherandroidapp.core.retrofit.UVApi
 import com.example.weatherandroidapp.core.retrofit.WeatherMapApi
-import com.example.weatherandroidapp.data.models.CurrentWeather
 import com.example.weatherandroidapp.data.models.ConfigForApi
-import com.example.weatherandroidapp.data.models.UVInfo
-import com.example.weatherandroidapp.utils.Resource
+import com.example.weatherandroidapp.data.models.DisplayUVInfo
+import com.example.weatherandroidapp.data.models.DisplayWeatherInfo
+import com.example.weatherandroidapp.utils.PreferencesUpdateState
 import com.example.weatherandroidapp.utils.SharedPreferencesUtils
 import com.example.weatherandroidapp.widget.WeatherWidgetProvider
 import kotlinx.coroutines.flow.flow
@@ -16,13 +16,13 @@ import javax.inject.Inject
 class MainRepository @Inject constructor(
     val weatherMapApi: WeatherMapApi,
     val config: ConfigForApi,
-    val UVApi :UVApi,
+    val UVApi: UVApi,
     val sharedPreferencesUtils: SharedPreferencesUtils,
     val context: Context
 ) {
 
-    fun getCurrentWeather(lat: Double, lon: Double) = flow<Resource<CurrentWeather>> {
-        emit(Resource.loading(null))
+    fun updateCurrentWeather(lat: Double, lon: Double) = flow<PreferencesUpdateState> {
+        emit(PreferencesUpdateState.loading())
         try {
             val currentWeather = weatherMapApi.getCurrentWeather(
                 lat = lat,
@@ -32,15 +32,16 @@ class MainRepository @Inject constructor(
                 lang = config.language
             )
             sharedPreferencesUtils.saveWeatherInfo(currentWeather)
-            emit(Resource.success(currentWeather))
+            emit(PreferencesUpdateState.success())
         } catch (e: Exception) {
             sharedPreferencesUtils.saveWeatherError(e.message.toString())
-            emit(Resource.error(null, e.message.toString()))
+            emit(PreferencesUpdateState.error(e.message.toString()))
         }
     }
 
-    fun getUVInfo(lat:Double, lon:Double) = flow<Resource<UVInfo>> {
-        emit(Resource.loading(null))
+    fun updateUVInfo(lat: Double, lon: Double) = flow<PreferencesUpdateState> {
+
+        emit(PreferencesUpdateState.loading())
         try {
             val uv = UVApi.getCurrentUV(
                 lat = lat,
@@ -48,24 +49,35 @@ class MainRepository @Inject constructor(
                 key = config.uvApiKey
             )
             sharedPreferencesUtils.saveUVInfo(uv)
-            emit(Resource.success(uv))
+            emit(PreferencesUpdateState.success())
         } catch (e: Exception) {
             sharedPreferencesUtils.saveUVError(e.message.toString())
-            emit(Resource.error(null, e.message.toString()))
+            emit(PreferencesUpdateState.error(e.message.toString()))
         }
+
     }
 
-    fun updateWidgets(){
+    fun updateWidgets() {
+        Log.i("Main Repository", "updateWidgets: widgets update")
         val widgetsIds = sharedPreferencesUtils.getListOfWidgetsId()
-        if(widgetsIds.isEmpty()) return
+        if (widgetsIds.isEmpty()) return
 
         widgetsIds.forEach {
             context.sendBroadcast(WeatherWidgetProvider.getUpdateWidgetIntentWithId(context, it))
         }
     }
 
-    fun setCommonErrorInPreferences(error: String){
-        sharedPreferencesUtils.saveUVError(error)
-        sharedPreferencesUtils.saveWeatherError(error)
+    fun getWeatherFromPreferences(): DisplayWeatherInfo {
+        val res = sharedPreferencesUtils.getWeatherInfo()
+        Log.i("CALL_TIME__________", "getWeatherFromPreferences: ${res.callTime}")
+        return res
+    }
+
+    fun getUVFromPreferences(): DisplayUVInfo {
+        return sharedPreferencesUtils.getUVInfo()
+    }
+
+    fun getCity(): String? {
+        return sharedPreferencesUtils.getCity()
     }
 }
