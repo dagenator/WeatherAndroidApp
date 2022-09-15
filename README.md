@@ -22,9 +22,7 @@ Just Pet project for my own use and improvement my hard skills
 
 
 ## ToDo
-* Room
 * Settings
-* sharedPreferences
 * work with galery
 * Testing Unit Tests
 * Testing. Write some integration tests

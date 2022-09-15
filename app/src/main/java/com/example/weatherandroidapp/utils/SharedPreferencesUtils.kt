@@ -3,8 +3,9 @@ package com.example.weatherandroidapp.utils
 import android.content.SharedPreferences
 import com.example.weatherandroidapp.data.models.CurrentWeather
 import com.example.weatherandroidapp.data.models.UVInfo
-import com.example.weatherandroidapp.data.models.WidgetUVInfo
-import com.example.weatherandroidapp.data.models.WidgetWeatherInfo
+import com.example.weatherandroidapp.data.models.DisplayUVInfo
+import com.example.weatherandroidapp.data.models.DisplayWeatherInfo
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 class SharedPreferencesUtils @Inject constructor(
@@ -13,7 +14,6 @@ class SharedPreferencesUtils @Inject constructor(
 ) {
 
     private val divider = ','
-
 
     fun saveNewWidgetId(id: Int) {
         val str = getListOfWidgetsIdInString()
@@ -70,14 +70,13 @@ class SharedPreferencesUtils @Inject constructor(
         }
     }
 
-
     fun saveWeatherInfo(currentWeather: CurrentWeather) {
         sharedPreferences.let {
             val myEdit: SharedPreferences.Editor = it.edit()
 
             myEdit.putInt(
-                "iconId",
-                weatherStateUtil.getImageStateSet(currentWeather.weather[0].id.toInt()).icon
+                "weatherId",
+                currentWeather.weather[0].id.toInt()
             )
             myEdit.putFloat("currentDegree", currentWeather.main.temp.toFloat())
             myEdit.putFloat("maxDegree", currentWeather.main.tempMax.toFloat())
@@ -85,6 +84,10 @@ class SharedPreferencesUtils @Inject constructor(
             myEdit.putFloat("wind", currentWeather.wind.speed.toFloat())
             myEdit.putString("city", currentWeather.name)
             myEdit.putString("weatherError", null)
+            myEdit.putFloat("feelDegree", currentWeather.main.feelsLike.toFloat())
+            myEdit.putFloat("cloudiness",currentWeather.clouds.all.toFloat())
+            myEdit.putString("description",currentWeather.weather[0].description.toString())
+            myEdit.putString("callTime", LocalDateTime.now().toString())
             myEdit.commit()
         }
     }
@@ -98,14 +101,19 @@ class SharedPreferencesUtils @Inject constructor(
         }
     }
 
-    fun getWeatherInfo(): WidgetWeatherInfo {
+    fun getWeatherInfo(): DisplayWeatherInfo {
         sharedPreferences.let {
-            return WidgetWeatherInfo(
-                it.getInt("iconId", 0),
-                it.getFloat("currentDegree", 0.0F),
-                it.getFloat("maxDegree", 0.0F),
-                it.getFloat("minDegree", 0.0F),
-                it.getFloat("wind", 0.0F)
+            return DisplayWeatherInfo(
+                weatherId = it.getInt("weatherId", 0),
+                currentDegree = it.getFloat("currentDegree", 0.0F),
+                maxDegree = it.getFloat("maxDegree", 0.0F),
+                minDegree = it.getFloat("minDegree", 0.0F),
+                feelDegree = it.getFloat("feelDegree", 0.0F),
+                wind = it.getFloat("wind", 0.0F),
+                cloudiness = it.getFloat("cloudiness",0.0F),
+                description = it.getString("description"," "),
+                error = it.getString("weatherError", null),
+                callTime =  it.getString("callTime", null)
             )
         }
     }
@@ -126,8 +134,6 @@ class SharedPreferencesUtils @Inject constructor(
         }
     }
 
-
-
     fun saveUVError(error: String) {
         sharedPreferences.let {
             val myEdit: SharedPreferences.Editor = it.edit()
@@ -142,11 +148,12 @@ class SharedPreferencesUtils @Inject constructor(
         }
     }
 
-    fun getUVInfo(): WidgetUVInfo {
+    fun getUVInfo(): DisplayUVInfo {
         sharedPreferences.let {
-            return WidgetUVInfo(
+            return DisplayUVInfo(
                 it.getFloat("currentUV", 0.0F),
-                it.getFloat("maxUV", 0.0F)
+                it.getFloat("maxUV", 0.0F),
+                it.getString("UVError", null)
             )
         }
     }

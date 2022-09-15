@@ -1,27 +1,31 @@
 package com.example.weatherandroidapp
 
-import android.os.Bundle
+import android.content.ComponentName
+import android.content.ContentValues.TAG
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
+import android.os.*
+import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.weatherandroidapp.core.app.App
 import com.example.weatherandroidapp.core.factory.MainViewModelFactory
-import com.example.weatherandroidapp.data.models.CurrentWeather
-import com.example.weatherandroidapp.data.models.Result
-import com.example.weatherandroidapp.data.models.UVInfo
+import com.example.weatherandroidapp.data.models.DisplayUVInfo
+import com.example.weatherandroidapp.data.models.DisplayWeatherInfo
 import com.example.weatherandroidapp.data.models.WeatherDescriptionItem
 import com.example.weatherandroidapp.databinding.ActivityWeatherBinding
 import com.example.weatherandroidapp.presenter.MainViewModel
 import com.example.weatherandroidapp.presenter.WeatherDescriptionAdapter
-import com.example.weatherandroidapp.utils.Resource
-import com.example.weatherandroidapp.utils.Status
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 
 class WeatherActivity : AppCompatActivity() {
 
@@ -31,132 +35,150 @@ class WeatherActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels<MainViewModel> { mainViewModelFactory }
     private lateinit var binding: ActivityWeatherBinding
 
-    var weatherObserver = Observer<Resource<CurrentWeather>> {
-        it?.let {
-            when (it.status) {
-                Status.LOADING -> setLoader(true)
-                Status.SUCCESS -> it.data?.let { setUI(it) }
-                Status.ERROR -> it.message?.let { setError(true, it) }
+    private var mService: Messenger? = null
+    private var bound: Boolean = false
+    val mMessenger = Messenger(IncomingWeatherActivityHandler { loadUiFromPreferences() })
+
+    internal class IncomingWeatherActivityHandler(var treatmentFun: () -> Unit ) : Handler() {
+        override fun handleMessage(msg: Message) {
+            when (msg.what) {
+                UpdateWeatherService.WEATHER_UPDATE_SUCCESS ->{
+                    Log.i(TAG, "message gets in activity. success of work")
+                    treatmentFun()
+                }
+
+                else ->{
+                    Log.i(TAG, "message which in activity ${msg.what} ")
+                    super.handleMessage(msg)
+                }
             }
-            setLoader(false)
         }
     }
 
-    var errorObserver = Observer<String> {
-        it?.let {
-            setError(true, it)
+    private val mConnection = object : ServiceConnection {
+
+        override fun onServiceConnected(className: ComponentName, service: IBinder) {
+            mService = Messenger(service)
+            bound = true
+
+            try {
+                val msg: Message = Message.obtain(
+                    null,
+                    UpdateWeatherService.WEATHER_UPDATE
+                )
+                msg.replyTo = mMessenger
+                mService!!.send(msg)
+
+            } catch (e: RemoteException) {
+                Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+            }
+
+        }
+
+        override fun onServiceDisconnected(className: ComponentName) {
+            mService = null
+            bound = false
         }
     }
 
-    private var UVObserver = Observer<Resource<UVInfo>> {
-        it?.let {
-            when (it.status) {
-                Status.LOADING -> {}
-                Status.SUCCESS -> it.data?.let { setUVInfo(it.result) }
-                Status.ERROR -> it.message?.let { setError(true, it) }
-            }
-            setLoader(false)
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
-
         binding = ActivityWeatherBinding.inflate(layoutInflater)
-
         (applicationContext as App).appComponent.inject(this)
-
-        val status = intent.getStringExtra("STATUS")
-        val location = intent.getDoubleArrayExtra("LOCATION_RESULT")
-        val message = intent.getStringExtra("ERROR_MESSAGE")
-
-        viewModel.currentWeatherLiveData.observe(this, weatherObserver)
-        viewModel.errorLiveData.observe(this, errorObserver)
-        viewModel.UVInfoLiveData.observe(this, UVObserver)
-
-        status?.let { it ->
-            if (Status.valueOf(it) == Status.SUCCESS) {
-                location?.let { weather ->
-                    CoroutineScope(Dispatchers.IO).launch {
-                        viewModel.getCurrentWeather(weather[0], weather[1])
-                        viewModel.getUVinfo(weather[0], weather[1])
-
-                    }.invokeOnCompletion {
-                        viewModel.updateWidgets()
-                    }
-                }
-            } else {
-                message?.let { message ->
-                    setUIPermissionDeny(message)
-                }
-            }
-        }
-
         setContentView(binding.root)
 
-        setLoader(true)
+        setLoader(true, false)
+        loadUiFromPreferences()
+
+        setLoader(true, true)
+
         supportActionBar?.hide()
     }
 
-    private fun setLoader(isLoad: Boolean) {
-        binding.progressBar.visibility = if (isLoad) View.VISIBLE else View.GONE
-        binding.mainWeatherWidget.visibility = if (isLoad) View.GONE else View.VISIBLE
-        binding.recyclerViewHolder.visibility = if (isLoad) View.GONE else View.VISIBLE
+    override fun onStart() {
+        super.onStart()
+        // Bind to the service
+        Intent(this, UpdateWeatherService::class.java).also { intent ->
+            bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        // Unbind from the service
+        if (bound) {
+            unbindService(mConnection)
+            bound = false
+        }
+    }
+
+    private fun loadUiFromPreferences() {
+        val weather = viewModel.getWeatherFromPreferences()
+        Log.i(TAG, "loadUiFromPreferences: $weather ")
+        val uv = viewModel.getUVFromPreferences()
+        viewModel.getCity()?.let { setUI(weather, it, uv) }
+        setLoader(false, true)
+    }
+
+
+    private fun setLoader(showLoader: Boolean, showWeatherInfo: Boolean) {
+        binding.progressBar.visibility = if (showLoader) View.VISIBLE else View.GONE
+        binding.mainWeatherWidget.visibility = if (showWeatherInfo) View.VISIBLE else View.GONE
+        binding.recyclerViewHolder.visibility = if (showWeatherInfo) View.VISIBLE else View.GONE
     }
 
     private fun setError(visible: Boolean, message: String?) {
         binding.error.text = message
         binding.error.visibility = if (visible) View.VISIBLE else View.GONE
-        setLoader(false)
+        setLoader(false, false)
     }
 
-    private fun setUI(currentWeather: CurrentWeather) {
+    private fun setUI(weather: DisplayWeatherInfo, city: String, UV: DisplayUVInfo) {
         binding.error.visibility = View.GONE
-        val images = viewModel.getImageStateSet((currentWeather.weather.first().id).toInt())
-        binding.city.text = currentWeather.name
+        val images = viewModel.getImageStateSet((weather.weatherId))
+        binding.city.text = city
         binding.mainBackground.background = AppCompatResources.getDrawable(this, images.background)
         binding.weatherIcon.setImageDrawable(AppCompatResources.getDrawable(this, images.icon))
-        binding.temp.text = currentWeather.main.temp.toString() + "°C"
-        binding.fellsTemp.text = currentWeather.main.feelsLike.toString() + "°C"
-        binding.wind.text = currentWeather.wind.speed.toString() + "м/с"
-        binding.cloudiness.text = currentWeather.clouds.all.toString() + "%"
+        binding.temp.text = weather.currentDegree.toString() + "°C"
+        binding.fellsTemp.text = weather.feelDegree.toString() + "°C"
+        binding.wind.text = weather.wind.toString() + "м/с"
+        binding.cloudiness.text = weather.cloudiness.toString() + "%"
         binding.descriptionLabel.setImageDrawable(AppCompatResources.getDrawable(this, images.icon))
-        setInfoRecyclerView()
+
+        setUVInfo(UV)
+        setInfoRecyclerView(weather, UV)
     }
 
-    private fun setInfoRecyclerView() {
-        val currentWeather = viewModel.currentWeatherLiveData.value?.data
-
+    private fun setInfoRecyclerView(weather: DisplayWeatherInfo, UV: DisplayUVInfo) {
         val description = mutableListOf<WeatherDescriptionItem>()
-        currentWeather?.let {
-            val images = viewModel.getImageStateSet((currentWeather.weather.first().id).toInt())
+        weather.let {
+            val images = viewModel.getImageStateSet((weather.weatherId))
             description.addAll(
                 arrayOf(
                     WeatherDescriptionItem(
                         R.drawable.ic_temp_high_icon,
-                        currentWeather.main.tempMax.toString() + "°C"
+                        weather.maxDegree.toString() + "°C"
                     ),
                     WeatherDescriptionItem(
                         R.drawable.ic_temp_low_icon,
-                        currentWeather.main.tempMin.toString() + "°C"
+                        weather.minDegree.toString() + "°C"
                     ),
-                    WeatherDescriptionItem(images.icon, currentWeather.weather[0].description)
+                    WeatherDescriptionItem(images.icon, weather.description ?: " ")
                 )
             )
         }
 
-        val UV = viewModel.UVInfoLiveData.value?.data
-        UV?.let {
+        UV.let {
             description.addAll(
                 arrayOf(
                     WeatherDescriptionItem(
                         R.drawable.ic_sun_uv_icon,
-                        "Макс УФ Индекс: " + it.result.uvMax
+                        "Макс УФ Индекс: " + it.maxUV
                     ),
                     WeatherDescriptionItem(
                         R.drawable.ic_sun_protection_icon,
-                        viewModel.UVDescription(it.result.uvMax.toInt())
+                        viewModel.UVDescription(it.currentUV.toInt())
                     )
                 )
             )
@@ -164,23 +186,32 @@ class WeatherActivity : AppCompatActivity() {
 
         val weatherDescriptionAdapter = WeatherDescriptionAdapter(this, description.toTypedArray())
         val lp = binding.recyclerViewHolder.layoutParams
-        lp.height += 160 * description.size
+        lp.height += 105 * description.size
         binding.recyclerViewHolder.layoutParams = lp
         binding.descriptionRecycler.layoutManager = LinearLayoutManager(this)
         binding.descriptionRecycler.adapter = weatherDescriptionAdapter
     }
 
-    private fun setUVInfo(uvInfo: Result) {
-        binding.UV.text = uvInfo.uv.toString()
-        setInfoRecyclerView()
+    private fun setUVInfo(uvInfo: DisplayUVInfo) {
+        binding.UV.text = uvInfo.currentUV.toString()
     }
 
+    // TODO: logic 
     private fun setUIPermissionDeny(message: String) {
         binding.mainWeatherWidget.visibility = View.GONE
         binding.recyclerViewHolder.visibility = View.GONE
         binding.mainBackground.background =
             AppCompatResources.getDrawable(this, R.drawable.night_sky)
         setError(true, message)
-        setLoader(false)
+        setLoader(false, true)
+    }
+
+    companion object{
+
+        fun getWeatherActivityIntent(context: Context,  error:String?):Intent{
+            val weatherIntent = Intent(context, WeatherActivity::class.java)
+            weatherIntent.putExtra("ERROR_MESSAGE", error)
+            return weatherIntent
+        }
     }
 }

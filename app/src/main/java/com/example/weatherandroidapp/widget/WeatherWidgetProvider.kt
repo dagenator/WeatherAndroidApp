@@ -19,6 +19,7 @@ class WeatherWidgetProvider :
     AppWidgetProvider() {
 
     val LOG_TAG = "myLogs"
+    val weatherStateUtil = WeatherStateUtil()
 
     override fun onReceive(context: Context?, intent: Intent?) {
         super.onReceive(context, intent)
@@ -96,7 +97,7 @@ class WeatherWidgetProvider :
 
             views.setOnClickPendingIntent(
                 R.id.widget_reload_button,
-                UpdateWeatherService.getStartUpdateWeatherServiceIntent(
+                UpdateWeatherService.getStartUpdateWeatherServicePendingIntent(
                     context,
                     WEATHER_UPDATE_ACTION,
                     appWidgetId
@@ -123,7 +124,11 @@ class WeatherWidgetProvider :
                 views.setTextViewText(R.id.widget_city, it)
             }
 
-            views.setImageViewResource(R.id.weather_widget_icon, weather.iconId)
+            var images = weatherStateUtil.getImageStateSet(weather.weatherId)
+
+            views.setImageViewResource(R.id.weather_widget_icon,  images.icon)
+            Log.i(TAG, "updateAppWidget: ${ images.icon}")
+            Log.i(TAG, "updateAppWidget: ${R.drawable.ic_clear_sky_icon}")
 
         } else {
             weatherError?.let {weatherError->
@@ -142,7 +147,6 @@ class WeatherWidgetProvider :
         }
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }
-
 
     companion object {
         const val WEATHER_UPDATE_ACTION = "WEATHER_UPDATE_ACTION"
