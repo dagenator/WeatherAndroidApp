@@ -42,6 +42,7 @@ class UpdateWeatherService(
 
 
     private lateinit var mMessenger: Messenger
+
     internal class IncomingServiceHandler(
         var treatmentFun: () -> Unit,
         var saveReplyTo: (Messenger) -> Unit
