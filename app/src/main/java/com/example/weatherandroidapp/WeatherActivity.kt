@@ -72,7 +72,6 @@ class WeatherActivity : AppCompatActivity() {
             } catch (e: RemoteException) {
                 Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
             }
-
         }
 
         override fun onServiceDisconnected(className: ComponentName) {
@@ -196,7 +195,7 @@ class WeatherActivity : AppCompatActivity() {
         binding.UV.text = uvInfo.currentUV.toString()
     }
 
-    // TODO: logic 
+    // TODO: check error logic
     private fun setUIPermissionDeny(message: String) {
         binding.mainWeatherWidget.visibility = View.GONE
         binding.recyclerViewHolder.visibility = View.GONE
@@ -207,7 +206,6 @@ class WeatherActivity : AppCompatActivity() {
     }
 
     companion object{
-
         fun getWeatherActivityIntent(context: Context,  error:String?):Intent{
             val weatherIntent = Intent(context, WeatherActivity::class.java)
             weatherIntent.putExtra("ERROR_MESSAGE", error)
