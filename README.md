@@ -24,6 +24,7 @@ Just Pet project for my own use and improvement my hard skills
 - Clean Architecture
 - Async (Kotlin coroutines + flow)
 - SharedPreferences
+- Services (Bound + Background)
 
 
 ## ToDo
