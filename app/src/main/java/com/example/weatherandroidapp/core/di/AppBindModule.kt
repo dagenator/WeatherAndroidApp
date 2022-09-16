@@ -23,7 +23,7 @@ interface AppBindModule {
     fun updateCurrentWeatherDataUseCaseImpl_to_UpdateCurrentWeatherDataUseCase(impl: UpdateCurrentWeatherDataUseCaseImpl): UpdateCurrentWeatherDataUseCase
 
     @Binds
-    fun uUpdateUVDataUseCaseImpl_to_UpdateUVDataUseCase(impl: UpdateUVDataUseCaseImpl): UpdateUVDataUseCase
+    fun updateUVDataUseCaseImpl_to_UpdateUVDataUseCase(impl: UpdateUVDataUseCaseImpl): UpdateUVDataUseCase
 
 
 }
