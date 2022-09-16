@@ -5,7 +5,7 @@ import com.example.weatherandroidapp.UpdateWeatherService
 import com.example.weatherandroidapp.WeatherActivity
 import dagger.Component
 
-@Component(modules = [AppModule::class, NetworkModule::class])
+@Component(modules = [AppModule::class, NetworkModule::class, AppBindModule::class])
 interface AppComponent {
 
     fun inject(mainActivity: MainActivity)
