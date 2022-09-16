@@ -38,6 +38,8 @@ class AppModule(private val context: Context) {
         return LocationServices.getFusedLocationProviderClient(context)
     }
 
+
+
     companion object {
         val PREFERENCES = "WEATHER_PREFERENCES"
     }

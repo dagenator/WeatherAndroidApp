@@ -12,9 +12,11 @@ import android.os.Message
 import android.os.Messenger
 import android.util.Log
 import com.example.weatherandroidapp.core.app.App
-import com.example.weatherandroidapp.data.repository.MainRepository
+import com.example.weatherandroidapp.useCases.UpdateAllWidgetsUseCase
+import com.example.weatherandroidapp.useCases.UpdateCurrentWeatherDataUseCase
+import com.example.weatherandroidapp.useCases.UpdateUVDataUseCase
 import com.example.weatherandroidapp.utils.LocationUtils
-import com.example.weatherandroidapp.utils.PreferencesUpdateState
+import com.example.weatherandroidapp.utils.MemoryUpdateState
 import com.example.weatherandroidapp.utils.Status
 import com.google.android.gms.location.FusedLocationProviderClient
 import kotlinx.coroutines.CoroutineScope
@@ -33,7 +35,13 @@ class UpdateWeatherService(
     lateinit var context: Context
 
     @Inject
-    lateinit var mainRepository: MainRepository
+    lateinit var updateUVDataUseCase: UpdateUVDataUseCase
+
+    @Inject
+    lateinit var updateCurrentWeatherDataUseCase: UpdateCurrentWeatherDataUseCase
+
+    @Inject
+    lateinit var updateWidgetsUseCase : UpdateAllWidgetsUseCase
 
     @Inject
     lateinit var locationUtils: LocationUtils
@@ -42,6 +50,7 @@ class UpdateWeatherService(
 
 
     private lateinit var mMessenger: Messenger
+
     internal class IncomingServiceHandler(
         var treatmentFun: () -> Unit,
         var saveReplyTo: (Messenger) -> Unit
@@ -84,7 +93,7 @@ class UpdateWeatherService(
     private fun getLocationAndUpdateWeather(sendResultMessage: Boolean = true) {
         val locationTask = locationUtils.getLastLocation(context, fusedLocationProviderClient)
         val currentLocation = locationUtils.getLocation(context, fusedLocationProviderClient)
-        if (locationTask == null) sendResultMessage(listOf(PreferencesUpdateState.error("Разрешения не были даны")))
+        if (locationTask == null) sendResultMessage(listOf(MemoryUpdateState.error("Разрешения не были даны")))
 
         locationTask?.let {
             it.addOnCompleteListener {
@@ -112,8 +121,8 @@ class UpdateWeatherService(
     }
 
     private suspend fun updateWeather(lon: Double, lat: Double, sendResultMessage: Boolean = true) {
-        val list = mutableListOf<PreferencesUpdateState>()
-        mainRepository.updateCurrentWeather(
+        val list = mutableListOf<MemoryUpdateState>()
+        updateCurrentWeatherDataUseCase(
             lon = lon,
             lat = lat
         ).collect {
@@ -121,7 +130,7 @@ class UpdateWeatherService(
             list.add(it)
         }
 
-        mainRepository.updateUVInfo(
+        updateUVDataUseCase(
             lon = lon,
             lat = lat
         ).collect {
@@ -131,7 +140,7 @@ class UpdateWeatherService(
         if (sendResultMessage) {
             sendResultMessage(list)
         }
-        mainRepository.updateWidgets()
+        updateWidgetsUseCase()
     }
 
     fun saveReplyTo(to: Messenger) {
@@ -139,7 +148,7 @@ class UpdateWeatherService(
         Log.i(TAG, "saveReplyTo: messenger saved")
     }
 
-    private fun sendResultMessage(listOfUpdateResult: List<PreferencesUpdateState>) {
+    private fun sendResultMessage(listOfUpdateResult: List<MemoryUpdateState>) {
 
         Log.i(TAG, "PreferenceStateList: $listOfUpdateResult")
 

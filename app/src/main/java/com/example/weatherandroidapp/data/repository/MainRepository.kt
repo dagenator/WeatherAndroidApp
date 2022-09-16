@@ -7,7 +7,7 @@ import com.example.weatherandroidapp.core.retrofit.WeatherMapApi
 import com.example.weatherandroidapp.data.models.ConfigForApi
 import com.example.weatherandroidapp.data.models.DisplayUVInfo
 import com.example.weatherandroidapp.data.models.DisplayWeatherInfo
-import com.example.weatherandroidapp.utils.PreferencesUpdateState
+import com.example.weatherandroidapp.utils.MemoryUpdateState
 import com.example.weatherandroidapp.utils.SharedPreferencesUtils
 import com.example.weatherandroidapp.widget.WeatherWidgetProvider
 import kotlinx.coroutines.flow.flow
@@ -21,8 +21,8 @@ class MainRepository @Inject constructor(
     val context: Context
 ) {
 
-    fun updateCurrentWeather(lat: Double, lon: Double) = flow<PreferencesUpdateState> {
-        emit(PreferencesUpdateState.loading())
+    fun updateCurrentWeather(lat: Double, lon: Double) = flow<MemoryUpdateState> {
+        emit(MemoryUpdateState.loading())
         try {
             val currentWeather = weatherMapApi.getCurrentWeather(
                 lat = lat,
@@ -32,16 +32,16 @@ class MainRepository @Inject constructor(
                 lang = config.language
             )
             sharedPreferencesUtils.saveWeatherInfo(currentWeather)
-            emit(PreferencesUpdateState.success())
+            emit(MemoryUpdateState.success())
         } catch (e: Exception) {
             sharedPreferencesUtils.saveWeatherError(e.message.toString())
-            emit(PreferencesUpdateState.error(e.message.toString()))
+            emit(MemoryUpdateState.error(e.message.toString()))
         }
     }
 
-    fun updateUVInfo(lat: Double, lon: Double) = flow<PreferencesUpdateState> {
+    fun updateUVInfo(lat: Double, lon: Double) = flow<MemoryUpdateState> {
 
-        emit(PreferencesUpdateState.loading())
+        emit(MemoryUpdateState.loading())
         try {
             val uv = UVApi.getCurrentUV(
                 lat = lat,
@@ -49,10 +49,10 @@ class MainRepository @Inject constructor(
                 key = config.uvApiKey
             )
             sharedPreferencesUtils.saveUVInfo(uv)
-            emit(PreferencesUpdateState.success())
+            emit(MemoryUpdateState.success())
         } catch (e: Exception) {
             sharedPreferencesUtils.saveUVError(e.message.toString())
-            emit(PreferencesUpdateState.error(e.message.toString()))
+            emit(MemoryUpdateState.error(e.message.toString()))
         }
 
     }

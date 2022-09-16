@@ -21,9 +21,6 @@ import com.example.weatherandroidapp.data.models.WeatherDescriptionItem
 import com.example.weatherandroidapp.databinding.ActivityWeatherBinding
 import com.example.weatherandroidapp.presenter.MainViewModel
 import com.example.weatherandroidapp.presenter.WeatherDescriptionAdapter
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -39,15 +36,15 @@ class WeatherActivity : AppCompatActivity() {
     private var bound: Boolean = false
     val mMessenger = Messenger(IncomingWeatherActivityHandler { loadUiFromPreferences() })
 
-    internal class IncomingWeatherActivityHandler(var treatmentFun: () -> Unit ) : Handler() {
+    internal class IncomingWeatherActivityHandler(var treatmentFun: () -> Unit) : Handler() {
         override fun handleMessage(msg: Message) {
             when (msg.what) {
-                UpdateWeatherService.WEATHER_UPDATE_SUCCESS ->{
+                UpdateWeatherService.WEATHER_UPDATE_SUCCESS -> {
                     Log.i(TAG, "message gets in activity. success of work")
                     treatmentFun()
                 }
 
-                else ->{
+                else -> {
                     Log.i(TAG, "message which in activity ${msg.what} ")
                     super.handleMessage(msg)
                 }
@@ -205,8 +202,8 @@ class WeatherActivity : AppCompatActivity() {
         setLoader(false, true)
     }
 
-    companion object{
-        fun getWeatherActivityIntent(context: Context,  error:String?):Intent{
+    companion object {
+        fun getWeatherActivityIntent(context: Context, error: String?): Intent {
             val weatherIntent = Intent(context, WeatherActivity::class.java)
             weatherIntent.putExtra("ERROR_MESSAGE", error)
             return weatherIntent
