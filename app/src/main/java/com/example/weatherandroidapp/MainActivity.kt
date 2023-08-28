@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity() {
 
     private val locationResultLiveData: MutableLiveData<Resource<Location>> = MutableLiveData(null)
 
-    private val locationResultObserver = Observer<Resource<Location>> {
+    private val locationResultObserver = Observer<Resource<Location?>?> {
         it?.let {
             val weatherIntent = WeatherActivity.getWeatherActivityIntent(
                 this, it.message
@@ -52,6 +52,7 @@ class MainActivity : AppCompatActivity() {
         requestCode: Int,
         permissions: Array<String>, grantResults: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             LOCATION_PERMISSION_REQUEST_CODE -> {
                 if ((grantResults.isNotEmpty() &&
