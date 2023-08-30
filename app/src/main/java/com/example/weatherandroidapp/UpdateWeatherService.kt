@@ -19,6 +19,7 @@ import com.example.weatherandroidapp.utils.LocationUtils
 import com.example.weatherandroidapp.utils.MemoryUpdateState
 import com.example.weatherandroidapp.utils.Status
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -91,9 +92,11 @@ class UpdateWeatherService(
     }
 
     private fun getLocationAndUpdateWeather(sendResultMessage: Boolean = true) {
-        val locationTask = locationUtils.getLastLocation(context, fusedLocationProviderClient)
-        val currentLocation = locationUtils.getLocation(context, fusedLocationProviderClient)
-        if (locationTask == null) sendResultMessage(listOf(MemoryUpdateState.error("Разрешения не были даны")))
+        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        val locationTask = locationUtils.getLastLocation(context, fusedLocationClient)
+        val currentLocation = locationUtils.getLocation(context, fusedLocationClient)
+        if (locationTask == null)
+            sendResultMessage(listOf(MemoryUpdateState.error("Разрешения не были даны")))
 
         locationTask?.let {
             it.addOnCompleteListener {
@@ -149,7 +152,6 @@ class UpdateWeatherService(
     }
 
     private fun sendResultMessage(listOfUpdateResult: List<MemoryUpdateState>) {
-
         Log.i(TAG, "PreferenceStateList: $listOfUpdateResult")
 
         val msg: Message = listOfUpdateResult.let { list ->

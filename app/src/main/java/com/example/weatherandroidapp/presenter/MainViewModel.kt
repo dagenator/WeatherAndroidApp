@@ -1,6 +1,8 @@
 package com.example.weatherandroidapp.presenter
 
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.weatherandroidapp.data.models.Weather
 import com.example.weatherandroidapp.useCases.GetCityFromMemoryUseCase
 import com.example.weatherandroidapp.useCases.GetUVFromMemoryUseCase
 import com.example.weatherandroidapp.useCases.GetWeatherFromMemoryUseCase
@@ -15,6 +17,27 @@ class MainViewModel @Inject constructor(
     val getUVFromMemoryUseCase: GetUVFromMemoryUseCase,
     val getCityFromMemoryUseCase: GetCityFromMemoryUseCase
 ) : ViewModel() {
+
+    val state: MutableLiveData<WeatherState> = MutableLiveData(WeatherState())
+
+    fun updateState(error:String? = null){
+        val newValue:WeatherState? = null
+        if(error.isNullOrEmpty().not()){
+            WeatherState(
+                errorMessage =error
+            )
+        }else{
+            WeatherState(
+                weather = getWeatherFromPreferences(),
+                uv = getUVFromPreferences(),
+                city = getCity()
+            )
+        }
+        newValue?.let {
+            state.value = it
+        }
+    }
+
 
     fun updateWidgets() =
         updateAllWidgetsUseCase()
