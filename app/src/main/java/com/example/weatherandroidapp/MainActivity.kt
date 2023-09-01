@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
 
     private val locationResultLiveData: MutableLiveData<Resource<Location>> = MutableLiveData(null)
 
-    private val locationResultObserver = Observer<Resource<Location>> {
+    private val locationResultObserver = Observer<Resource<Location?>?> {
         it?.let {
             val intent = Intent(this, WeatherActivity::class.java)
             intent.putExtra("STATUS", it.status.toString())

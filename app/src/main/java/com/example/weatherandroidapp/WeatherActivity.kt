@@ -31,7 +31,7 @@ class WeatherActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels<MainViewModel> { mainViewModelFactory }
     private lateinit var binding: ActivityWeatherBinding
 
-    var weatherObserver = Observer<Resource<CurrentWeather>> {
+    var weatherObserver = Observer<Resource<CurrentWeather>?> {
         it?.let {
             when (it.status) {
                 Status.LOADING -> setLoader(true)
@@ -42,13 +42,13 @@ class WeatherActivity : AppCompatActivity() {
         }
     }
 
-    var errorObserver = Observer<String> {
+    var errorObserver = Observer<String?> {
         it?.let {
             setError(true, it)
         }
     }
 
-    private var UVObserver = Observer<Resource<UVInfo>> {
+    private var UVObserver = Observer<Resource<UVInfo>?> {
         it?.let {
             when (it.status) {
                 Status.LOADING -> {}
