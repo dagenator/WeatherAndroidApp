@@ -1,22 +1,38 @@
 package com.example.weatherandroidapp
 
 import android.os.Bundle
-import android.view.View
+import android.util.Log
+import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.content.res.AppCompatResources
-import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.weatherandroidapp.core.app.App
 import com.example.weatherandroidapp.core.factory.MainViewModelFactory
-import com.example.weatherandroidapp.data.models.CurrentWeather
-import com.example.weatherandroidapp.data.models.Result
-import com.example.weatherandroidapp.data.models.UVInfo
 import com.example.weatherandroidapp.data.models.WeatherDescriptionItem
+import com.example.weatherandroidapp.data.models.WeatherDescriptionItemBindOneInRow
 import com.example.weatherandroidapp.databinding.ActivityWeatherBinding
 import com.example.weatherandroidapp.presenter.MainViewModel
-import com.example.weatherandroidapp.presenter.WeatherDescriptionAdapter
-import com.example.weatherandroidapp.utils.Resource
+import com.example.weatherandroidapp.utils.Response
 import com.example.weatherandroidapp.utils.Status
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,42 +47,13 @@ class WeatherActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels<MainViewModel> { mainViewModelFactory }
     private lateinit var binding: ActivityWeatherBinding
 
-    var weatherObserver = Observer<Resource<CurrentWeather>?> {
-        it?.let {
-            when (it.status) {
-                Status.LOADING -> setLoader(true)
-                Status.SUCCESS -> it.data?.let { setUI(it) }
-                Status.ERROR -> it.message?.let { setError(true, it) }
-            }
-            setLoader(false)
-        }
-    }
-
-    var errorObserver = Observer<String?> {
-        it?.let {
-            setError(true, it)
-        }
-    }
-
-    private var UVObserver = Observer<Resource<UVInfo>?> {
-        it?.let {
-            when (it.status) {
-                Status.LOADING -> {}
-                Status.SUCCESS -> it.data?.let { setUVInfo(it.result) }
-                Status.ERROR -> it.message?.let { setError(true, it) }
-            }
-            setLoader(false)
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
-
+        Log.i("TEST_TAG", "onCreate: weatherActivity")
         super.onCreate(savedInstanceState)
 
         binding = ActivityWeatherBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setLoader(true)
         supportActionBar?.hide()
 
         (applicationContext as App).appComponent.inject(this)
@@ -75,9 +62,6 @@ class WeatherActivity : AppCompatActivity() {
         val location = intent.getDoubleArrayExtra("LOCATION_RESULT")
         val message = intent.getStringExtra("ERROR_MESSAGE")
 
-        viewModel.currentWeatherLiveData.observe(this, weatherObserver)
-        viewModel.errorLiveData.observe(this, errorObserver)
-        viewModel.UVInfoLiveData.observe(this, UVObserver)
 
         status?.let { it ->
             if (Status.valueOf(it) == Status.SUCCESS) {
@@ -89,99 +73,94 @@ class WeatherActivity : AppCompatActivity() {
                 }
             } else {
                 message?.let { message ->
-                    setUIPermissionDeny(message)
+                    viewModel.setError(message)
                 }
             }
         }
-
-    }
-
-    private fun setLoader(isLoad: Boolean) {
-        binding.progressBar.visibility = if (isLoad) View.VISIBLE else View.GONE
-        binding.mainWeatherWidget.visibility = if (isLoad) View.GONE else View.VISIBLE
-        binding.recyclerViewHolder.visibility = if (isLoad) View.GONE else View.VISIBLE
-    }
-
-    private fun setError(visible: Boolean, message: String?) {
-        binding.error.text = message
-        binding.error.visibility = if (visible) View.VISIBLE else View.GONE
-        setLoader(false)
-
-    }
-
-    private fun setUI(currentWeather: CurrentWeather) {
-        binding.error.visibility = View.GONE
-        val images = viewModel.getImageStateSet((currentWeather.weather.first().id).toInt())
-        binding.city.text = currentWeather.name
-        binding.mainBackground.background = AppCompatResources.getDrawable(this, images.background)
-        binding.weatherIcon.setImageDrawable(AppCompatResources.getDrawable(this, images.icon))
-        binding.temp.text = currentWeather.main.temp.toString() + "°C"
-        binding.fellsTemp.text = currentWeather.main.feelsLike.toString() + "°C"
-        binding.wind.text = currentWeather.wind.speed.toString() + "м/с"
-        binding.cloudiness.text = currentWeather.clouds.all.toString() + "%"
-        binding.descriptionLabel.setImageDrawable(AppCompatResources.getDrawable(this, images.icon))
-        //setInfoRecyclerView()
-    }
-
-    private fun setInfoRecyclerView() {
-        val currentWeather = viewModel.currentWeatherLiveData.value?.data
-
-        val description = mutableListOf<WeatherDescriptionItem>()
-        currentWeather?.let {
-            val images = viewModel.getImageStateSet((currentWeather.weather.first().id).toInt())
-            description.addAll(
-                arrayOf(
-                    WeatherDescriptionItem(
-                        R.drawable.ic_temp_high_icon,
-                        currentWeather.main.tempMax.toString() + "°C"
-                    ),
-                    WeatherDescriptionItem(
-                        R.drawable.ic_temp_low_icon,
-                        currentWeather.main.tempMin.toString() + "°C"
-                    ),
-                    WeatherDescriptionItem(images.icon, currentWeather.weather[0].description)
-                 )
-            )
+        setContent {
+            MainComposeSet()
         }
 
-        val UV = viewModel.UVInfoLiveData.value?.data
-        UV?.let{
-            description.addAll(
-                arrayOf(
-                    WeatherDescriptionItem(
-                        R.drawable.ic_sun_uv_icon,
-                        "Макс УФ Индекс: " + it.result.uvMax
-                    ),
-                    WeatherDescriptionItem(
-                        R.drawable.ic_sun_protection_icon,
-                        viewModel.UVDescription(it.result.uvMax.toInt())
-                    )
-                )
-            )
+    }
+
+    @Composable
+    private fun MainComposeSet() {
+        val state = viewModel.currentWeatherLiveData.observeAsState()
+
+        state.value?.let {
+            when (it) {
+                is Response.error -> {
+                    SetComposeError(message = it.msg)
+                }
+
+                is Response.loading -> {
+                    SetComposeLoader()
+                }
+
+                is Response.success -> {
+                    it.value?.let {
+                        SetUISuccessCompose(
+                            it.background ?: R.drawable.clouds, it.info.values.toList()
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+
+    @Composable
+    private fun SetComposeLoader() {
+        Box(
+            contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()
+        ) {
+            CircularProgressIndicator()
         }
 
-        val weatherDescriptionAdapter = WeatherDescriptionAdapter(this, description.toTypedArray())
-        val lp = binding.recyclerViewHolder.layoutParams
-        lp.height += 160 * description.size
-        binding.recyclerViewHolder.layoutParams = lp
-        binding.descriptionRecycler.layoutManager = LinearLayoutManager(this)
-        binding.descriptionRecycler.adapter = weatherDescriptionAdapter
-
-
     }
 
-    private fun setUVInfo(uvInfo: Result) {
-        binding.UV.text = uvInfo.uv.toString()
-        setInfoRecyclerView()
+    @Composable
+    private fun SetComposeError(message: String?) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            message?.let {
+                Text(modifier = Modifier.align(Alignment.Center), text = it, fontSize = 24.sp)
+            }
+        }
     }
 
-    private fun setUIPermissionDeny(message: String) {
-        binding.mainWeatherWidget.visibility = View.GONE
-        binding.recyclerViewHolder.visibility = View.GONE
-        binding.mainBackground.background =
-            AppCompatResources.getDrawable(this, R.drawable.night_sky)
-        setError(true, message)
-        setLoader(false)
+
+    @Composable
+    private fun SetUISuccessCompose(background: Int, info: List<WeatherDescriptionItem>) {
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Image(
+                modifier = Modifier.fillMaxSize(),
+                painter = painterResource(id = background),
+                contentDescription = "background",
+                contentScale = ContentScale.Crop,
+            )
+
+            Box(modifier = Modifier.padding(20.dp, 0.dp).align(Alignment.CenterStart)) {
+                Box(
+                    modifier = Modifier
+                        .clip(shape = RoundedCornerShape(15.dp))
+                        .width(160.dp)
+                        .background(color = Color.Black.copy(alpha = 0.3f)),
+                ) {
+                    LazyColumn(
+                        modifier = Modifier, horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        items(info) {
+                            WeatherDescriptionItemBindOneInRow(
+                                modifier = Modifier, weather = it
+                            )
+                        }
+                    }
+                }
+
+            }
+        }
     }
 
 }

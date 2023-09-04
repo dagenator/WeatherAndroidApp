@@ -7,17 +7,16 @@ import com.example.weatherandroidapp.data.models.Result
 import com.example.weatherandroidapp.data.models.ConfigForApi
 import com.example.weatherandroidapp.data.models.UVInfo
 import com.example.weatherandroidapp.utils.Resource
+import com.example.weatherandroidapp.utils.Response
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class MainRepository @Inject constructor(
-    val weatherMapApi: WeatherMapApi,
-    val config: ConfigForApi,
-    val UVApi :UVApi
+    val weatherMapApi: WeatherMapApi, val config: ConfigForApi, val UVApi: UVApi
 ) {
 
-    fun getCurrentWeather(lat: Double, lon: Double) = flow<Resource<CurrentWeather>> {
-        emit(Resource.loading(null))
+    fun getCurrentWeather(lat: Double, lon: Double) = flow<Response<CurrentWeather>> {
+        emit(Response.loading)
         try {
             val currentWeather = weatherMapApi.getCurrentWeather(
                 lat = lat,
@@ -26,23 +25,21 @@ class MainRepository @Inject constructor(
                 units = config.units,
                 lang = config.language
             )
-            emit(Resource.success(currentWeather))
+            emit(Response.success(currentWeather))
         } catch (e: Exception) {
-            emit(Resource.error(null, e.message.toString()))
+            emit(Response.error(e.message.toString()))
         }
     }
 
-    fun getUVInfo(lat:Double, lon:Double) = flow<Resource<UVInfo>> {
-        emit(Resource.loading(null))
+    fun getUVInfo(lat: Double, lon: Double) = flow<Response<UVInfo>> {
+        emit(Response.loading)
         try {
             val uv = UVApi.getCurrentUV(
-                lat = lat,
-                lon = lon,
-                key = config.uvApiKey
+                lat = lat, lon = lon, key = config.uvApiKey
             )
-            emit(Resource.success(uv))
+            emit(Response.success(uv))
         } catch (e: Exception) {
-            emit(Resource.error(null, e.message.toString()))
+            emit(Response.error(e.message.toString()))
         }
     }
 
