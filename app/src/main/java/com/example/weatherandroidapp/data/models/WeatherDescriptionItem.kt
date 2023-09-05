@@ -29,9 +29,8 @@ sealed class WeatherDescriptionItem(){
 @Preview()
 @Composable
 fun WeatherDescriptionItemBindOneInRow(
-    modifier: Modifier = Modifier, weather: WeatherDescriptionItem = WeatherDescriptionItem.UiIcon(R.id.weather_icon)
+    modifier: Modifier = Modifier, weather: WeatherDescriptionItem = WeatherDescriptionItem.UiIcon(R.drawable.ic_mist_icon)
 ) {
-
     Row(
         modifier = Modifier.padding(3.dp), horizontalArrangement = Arrangement.Center
     ) {

@@ -48,119 +48,12 @@ class WeatherActivity : AppCompatActivity() {
     private lateinit var binding: ActivityWeatherBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.i("TEST_TAG", "onCreate: weatherActivity")
         super.onCreate(savedInstanceState)
 
         binding = ActivityWeatherBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        supportActionBar?.hide()
-
         (applicationContext as App).appComponent.inject(this)
-
-        val status = intent.getStringExtra("STATUS")
-        val location = intent.getDoubleArrayExtra("LOCATION_RESULT")
-        val message = intent.getStringExtra("ERROR_MESSAGE")
-
-
-        status?.let { it ->
-            if (Status.valueOf(it) == Status.SUCCESS) {
-                location?.let { weather ->
-                    CoroutineScope(Dispatchers.IO).launch {
-                        viewModel.getCurrentWeather(weather[0], weather[1])
-                        viewModel.getUVinfo(weather[0], weather[1])
-                    }
-                }
-            } else {
-                message?.let { message ->
-                    viewModel.setError(message)
-                }
-            }
-        }
-        setContent {
-            MainComposeSet()
-        }
-
-    }
-
-    @Composable
-    private fun MainComposeSet() {
-        val state = viewModel.currentWeatherLiveData.observeAsState()
-
-        state.value?.let {
-            when (it) {
-                is Response.error -> {
-                    SetComposeError(message = it.msg)
-                }
-
-                is Response.loading -> {
-                    SetComposeLoader()
-                }
-
-                is Response.success -> {
-                    it.value?.let {
-                        SetUISuccessCompose(
-                            it.background ?: R.drawable.clouds, it.info.values.toList()
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-
-    @Composable
-    private fun SetComposeLoader() {
-        Box(
-            contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()
-        ) {
-            CircularProgressIndicator()
-        }
-
-    }
-
-    @Composable
-    private fun SetComposeError(message: String?) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            message?.let {
-                Text(modifier = Modifier.align(Alignment.Center), text = it, fontSize = 24.sp)
-            }
-        }
-    }
-
-
-    @Composable
-    private fun SetUISuccessCompose(background: Int, info: List<WeatherDescriptionItem>) {
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Image(
-                modifier = Modifier.fillMaxSize(),
-                painter = painterResource(id = background),
-                contentDescription = "background",
-                contentScale = ContentScale.Crop,
-            )
-
-            Box(modifier = Modifier.padding(20.dp, 0.dp).align(Alignment.CenterStart)) {
-                Box(
-                    modifier = Modifier
-                        .clip(shape = RoundedCornerShape(15.dp))
-                        .width(160.dp)
-                        .background(color = Color.Black.copy(alpha = 0.3f)),
-                ) {
-                    LazyColumn(
-                        modifier = Modifier, horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        items(info) {
-                            WeatherDescriptionItemBindOneInRow(
-                                modifier = Modifier, weather = it
-                            )
-                        }
-                    }
-                }
-
-            }
-        }
     }
 
 }

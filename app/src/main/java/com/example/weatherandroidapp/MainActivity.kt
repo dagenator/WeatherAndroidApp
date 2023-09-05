@@ -102,7 +102,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun getLastLocationWithPermissionCheck() {
+    private fun getLastLocationWithPermissionCheck() {
         try {
             val location = getLastLocation()
             if (location == null) {
