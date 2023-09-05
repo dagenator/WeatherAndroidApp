@@ -89,11 +89,6 @@ class MainActivity : AppCompatActivity() {
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.night_sky),
-                contentDescription = "background",
-                contentScale = ContentScale.Crop,
-            )
 
             Image(
                 modifier = Modifier
