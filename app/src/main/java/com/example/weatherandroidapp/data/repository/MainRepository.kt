@@ -34,9 +34,10 @@ class MainRepository @Inject constructor(
     fun getUVInfo(lat: Double, lon: Double) = flow<Response<UVInfo>> {
         emit(Response.loading)
         try {
-            val uv = UVApi.getCurrentUV(
-                lat = lat, lon = lon, key = config.uvApiKey
-            )
+//            val uv = UVApi.getCurrentUV(
+//                lat = lat, lon = lon, key = config.uvApiKey
+//            )
+            val uv = UVInfo(Result(3.0, "", 5.0, "", 33.0, "", null, null))
             emit(Response.success(uv))
         } catch (e: Exception) {
             emit(Response.error(e.message.toString()))

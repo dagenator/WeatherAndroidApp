@@ -54,13 +54,13 @@ class MainActivity : AppCompatActivity() {
     private val locationResultObserver = Observer<Resource<Location?>?> {
         it?.let {
             val intent = Intent(this, WeatherActivity::class.java)
-            intent.putExtra("STATUS", it.status.toString())
+            intent.putExtra(WeatherActivity.EXTRA_STATUS, it.status.toString())
             intent.putExtra(
-                "LOCATION_RESULT", if (it.data == null) doubleArrayOf(0.0, 0.0) else doubleArrayOf(
+                WeatherActivity.EXTRA_LOCATION, if (it.data == null) doubleArrayOf(0.0, 0.0) else doubleArrayOf(
                     it.data.latitude, it.data.longitude
                 )
             )
-            intent.putExtra("ERROR_MESSAGE", it.message)
+            intent.putExtra(WeatherActivity.EXTRA_ERROR, it.message)
             startActivity(intent)
         }
     }

@@ -77,7 +77,7 @@ class MainViewModel @Inject constructor(
                 icon = R.drawable.ic_mist_icon, description = weather.weather.first().description
             ),
         )
-        val newInfo = updateWeatherInfoList(currentWeatherLiveData.value?.data?.info, updated)
+        val newInfo = updateWeatherInfoList(descriptionWeatherLiveData.value?.data?.info, updated)
         val newState = WeatherUIState(newInfo, currentWeatherLiveData.value?.data?.background)
 
         descriptionWeatherLiveData.postValue(
@@ -97,7 +97,7 @@ class MainViewModel @Inject constructor(
                 description = UVDescription(uv.result.uvMax.toInt())
             )
         )
-        val newInfo = updateWeatherInfoList(currentWeatherLiveData.value?.data?.info, updated)
+        val newInfo = updateWeatherInfoList(descriptionWeatherLiveData.value?.data?.info, updated)
         val newState = WeatherUIState(newInfo, currentWeatherLiveData.value?.data?.background)
 
         descriptionWeatherLiveData.postValue(

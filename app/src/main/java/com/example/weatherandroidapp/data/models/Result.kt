@@ -20,8 +20,8 @@ data class Result (
     val ozoneTime: String,
 
     @SerializedName("safe_exposure_time")
-    val safeExposureTime: SafeExposureTime,
+    val safeExposureTime: SafeExposureTime?,
 
     @SerializedName("sun_info")
-    val sunInfo: SunInfo
+    val sunInfo: SunInfo?
 )

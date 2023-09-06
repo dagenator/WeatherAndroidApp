@@ -19,25 +19,27 @@ import androidx.compose.ui.unit.sp
 import com.example.weatherandroidapp.R
 
 
-sealed class WeatherDescriptionItem(){
-    data class UiDescription(val description: String):WeatherDescriptionItem()
-    data class UiTitle(val title: Int):WeatherDescriptionItem()
-    data class UiIcon(val icon: Int):WeatherDescriptionItem()
-    data class UiBigTitleIcon(val icon: Int):WeatherDescriptionItem()
-    data class RowDescription (val icon:Int, val description: String): WeatherDescriptionItem()
+sealed class WeatherDescriptionItem() {
+    data class UiDescription(val description: String) : WeatherDescriptionItem()
+    data class UiTitle(val title: Int) : WeatherDescriptionItem()
+    data class UiIcon(val icon: Int) : WeatherDescriptionItem()
+    data class UiBigTitleIcon(val icon: Int) : WeatherDescriptionItem()
+    data class RowDescription(val icon: Int, val description: String) : WeatherDescriptionItem()
 }
 
 @Preview()
 @Composable
 fun WeatherDescriptionItemBindOneInRow(
-    modifier: Modifier = Modifier, weather: WeatherDescriptionItem = WeatherDescriptionItem.UiIcon(R.drawable.ic_mist_icon)
+    modifier: Modifier = Modifier,
+    weather: WeatherDescriptionItem = WeatherDescriptionItem.UiIcon(R.drawable.ic_mist_icon)
 ) {
-    Row(
-        modifier = Modifier.padding(3.dp), horizontalArrangement = Arrangement.Center
-    ) {
 
-        when(weather){
-            is WeatherDescriptionItem.UiDescription->{
+
+    when (weather) {
+        is WeatherDescriptionItem.UiDescription -> {
+            Row(
+                modifier = modifier.padding(3.dp), horizontalArrangement = Arrangement.Center
+            ) {
                 Text(
                     modifier = Modifier,
                     text = weather.description,
@@ -45,15 +47,25 @@ fun WeatherDescriptionItemBindOneInRow(
                     fontSize = 22.sp
                 )
             }
-            is WeatherDescriptionItem.UiIcon->{
+        }
+
+        is WeatherDescriptionItem.UiIcon -> {
+            Row(
+                modifier = modifier.padding(3.dp), horizontalArrangement = Arrangement.Center
+            ) {
                 Image(
                     modifier = Modifier.height(22.dp),
-                    painter = painterResource(id =  weather.icon ?: R.drawable.ic_mist_icon),
+                    painter = painterResource(id = weather.icon ?: R.drawable.ic_mist_icon),
                     contentDescription = weather.icon.toString(),
                     colorFilter = ColorFilter.tint(Color.White.copy(alpha = 0.7f))
                 )
             }
-            is WeatherDescriptionItem.UiTitle->{
+        }
+
+        is WeatherDescriptionItem.UiTitle -> {
+            Row(
+                modifier = modifier.padding(3.dp), horizontalArrangement = Arrangement.Center
+            ) {
                 Text(
                     modifier = Modifier.alpha(0.7f),
                     text = stringResource(weather.title),
@@ -61,18 +73,28 @@ fun WeatherDescriptionItemBindOneInRow(
                     fontSize = 20.sp
                 )
             }
-            is WeatherDescriptionItem.UiBigTitleIcon->{
+        }
+
+        is WeatherDescriptionItem.UiBigTitleIcon -> {
+            Row(
+                modifier = modifier.padding(3.dp), horizontalArrangement = Arrangement.Center
+            ) {
                 Image(
                     modifier = Modifier.height(60.dp),
-                    painter = painterResource(id =  weather.icon ?: R.drawable.ic_mist_icon),
+                    painter = painterResource(id = weather.icon ?: R.drawable.ic_mist_icon),
                     contentDescription = weather.icon.toString(),
                     colorFilter = ColorFilter.tint(Color.White)
                 )
             }
-            is WeatherDescriptionItem.RowDescription->{
+        }
+
+        is WeatherDescriptionItem.RowDescription -> {
+            Row(
+                modifier = modifier.padding(3.dp), horizontalArrangement = Arrangement.SpaceEvenly,
+            ) {
                 Image(
                     modifier = Modifier.height(60.dp),
-                    painter = painterResource(id =  weather.icon ?: R.drawable.ic_mist_icon),
+                    painter = painterResource(id = weather.icon ?: R.drawable.ic_mist_icon),
                     contentDescription = weather.icon.toString(),
                     colorFilter = ColorFilter.tint(Color.White)
                 )
@@ -84,6 +106,8 @@ fun WeatherDescriptionItemBindOneInRow(
                     fontSize = 20.sp
                 )
             }
+
         }
+
     }
 }

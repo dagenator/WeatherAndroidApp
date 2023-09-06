@@ -1,5 +1,6 @@
 package com.example.weatherandroidapp.presenter
 
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,14 +9,15 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -28,14 +30,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import com.example.weatherandroidapp.R
+import com.example.weatherandroidapp.WeatherActivity
 import com.example.weatherandroidapp.core.app.App
 import com.example.weatherandroidapp.core.factory.MainViewModelFactory
 import com.example.weatherandroidapp.data.models.WeatherDescriptionItem
 import com.example.weatherandroidapp.data.models.WeatherDescriptionItemBindOneInRow
 import com.example.weatherandroidapp.utils.Response
 import com.example.weatherandroidapp.utils.Status
+import com.github.terrakok.cicerone.Router
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -46,17 +50,18 @@ class WeatherFragment : Fragment() {
     @Inject
     lateinit var mainViewModelFactory: MainViewModelFactory
 
-    private val viewModel: MainViewModel by viewModels<MainViewModel> { mainViewModelFactory }
+    @Inject
+    lateinit var router: Router
+
+    private val viewModel: MainViewModel by activityViewModels<MainViewModel> { mainViewModelFactory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         (activity?.applicationContext as App).appComponent.inject(this)
 
         val status = activity?.intent?.getStringExtra("STATUS")
         val location = activity?.intent?.getDoubleArrayExtra("LOCATION_RESULT")
         val message = activity?.intent?.getStringExtra("ERROR_MESSAGE")
-
 
         status?.let { it ->
             if (Status.valueOf(it) == Status.SUCCESS) {
@@ -89,7 +94,7 @@ class WeatherFragment : Fragment() {
                 }
 
                 is Response.success -> {
-                    it.value?.let {
+                    it.value.let {
                         SetUISuccessCompose(
                             it.background ?: R.drawable.clouds, it.info.values.toList()
                         )
@@ -127,7 +132,6 @@ class WeatherFragment : Fragment() {
         }
     }
 
-
     @Composable
     private fun SetUISuccessCompose(background: Int, info: List<WeatherDescriptionItem>) {
         Box(
@@ -140,13 +144,14 @@ class WeatherFragment : Fragment() {
                 contentScale = ContentScale.Crop,
             )
 
-            Box(modifier = Modifier
-                .align(Alignment.Center)) {
+            Box(
+                modifier = Modifier.align(Alignment.CenterStart)
+            ) {
                 Box(
                     modifier = Modifier
                         .padding(20.dp, 0.dp)
                         .clip(shape = RoundedCornerShape(15.dp))
-                        .fillMaxWidth()
+                        .width(160.dp)
                         .background(color = Color.Black.copy(alpha = 0.3f)),
                 ) {
                     LazyColumn(
@@ -159,8 +164,21 @@ class WeatherFragment : Fragment() {
                         }
                     }
                 }
-
             }
+
+            TextButton(modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .background(color = Color.Black.copy(alpha = 0.3f)),
+                onClick = { router.navigateTo(WeatherActivity.Screens.WeatherDetailsFragment()) }) {
+                Text(text = "->", fontSize = 26.sp)
+            }
+        }
+    }
+
+    companion object {
+
+        fun getNewInstance(): WeatherFragment {
+            return WeatherFragment()
         }
     }
 
