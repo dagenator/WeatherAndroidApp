@@ -1,4 +1,4 @@
-package com.example.weatherandroidapp
+package com.example.weatherandroidapp.presenter
 
 import com.example.weatherandroidapp.data.models.WeatherDescriptionItem
 

@@ -1,15 +1,14 @@
-package com.example.weatherandroidapp
+package com.example.weatherandroidapp.presenter
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,12 +29,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.example.weatherandroidapp.R
 import com.example.weatherandroidapp.core.app.App
 import com.example.weatherandroidapp.core.factory.MainViewModelFactory
 import com.example.weatherandroidapp.data.models.WeatherDescriptionItem
 import com.example.weatherandroidapp.data.models.WeatherDescriptionItemBindOneInRow
-import com.example.weatherandroidapp.databinding.ActivityWeatherBinding
-import com.example.weatherandroidapp.presenter.MainViewModel
 import com.example.weatherandroidapp.utils.Response
 import com.example.weatherandroidapp.utils.Status
 import kotlinx.coroutines.CoroutineScope
@@ -43,7 +41,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class WeatherFragment: Fragment() {
+class WeatherFragment : Fragment() {
 
     @Inject
     lateinit var mainViewModelFactory: MainViewModelFactory
@@ -53,7 +51,7 @@ class WeatherFragment: Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        (activity?.applicationContext  as App).appComponent.inject(this)
+        (activity?.applicationContext as App).appComponent.inject(this)
 
         val status = activity?.intent?.getStringExtra("STATUS")
         val location = activity?.intent?.getDoubleArrayExtra("LOCATION_RESULT")
@@ -65,7 +63,7 @@ class WeatherFragment: Fragment() {
                 location?.let { weather ->
                     CoroutineScope(Dispatchers.IO).launch {
                         viewModel.getCurrentWeather(weather[0], weather[1])
-                        viewModel.getUVinfo(weather[0], weather[1])
+                        viewModel.getUVInfo(weather[0], weather[1])
                     }
                 }
             } else {
@@ -102,8 +100,7 @@ class WeatherFragment: Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
@@ -143,11 +140,13 @@ class WeatherFragment: Fragment() {
                 contentScale = ContentScale.Crop,
             )
 
-            Box(modifier = Modifier.padding(20.dp, 0.dp).align(Alignment.CenterStart)) {
+            Box(modifier = Modifier
+                .align(Alignment.Center)) {
                 Box(
                     modifier = Modifier
+                        .padding(20.dp, 0.dp)
                         .clip(shape = RoundedCornerShape(15.dp))
-                        .width(160.dp)
+                        .fillMaxWidth()
                         .background(color = Color.Black.copy(alpha = 0.3f)),
                 ) {
                     LazyColumn(

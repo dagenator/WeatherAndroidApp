@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherandroidapp.R
-import com.example.weatherandroidapp.WeatherUIState
 import com.example.weatherandroidapp.data.models.CurrentWeather
 import com.example.weatherandroidapp.data.models.UVInfo
 import com.example.weatherandroidapp.data.models.WeatherDescriptionItem
@@ -21,7 +20,8 @@ class MainViewModel @Inject constructor(
 
     val currentWeatherLiveData: MutableLiveData<Response<WeatherUIState>?> = MutableLiveData(null)
 
-    val UVInfoLiveData: MutableLiveData<Response<UVInfo>> = MutableLiveData(null)
+    val descriptionWeatherLiveData: MutableLiveData<Response<WeatherUIState>?> =
+        MutableLiveData(null)
 
     fun getCurrentWeather(lat: Double, lon: Double) {
         viewModelScope.launch {
@@ -36,39 +36,15 @@ class MainViewModel @Inject constructor(
                     }
 
                     is Response.success -> {
-                        val images = getImageStateSet(it.value.weather.first().id.toInt())
-                        val updated = mapOf<String, WeatherDescriptionItem>(
-                            "cityName" to WeatherDescriptionItem.UiDescription (it.value.name ?: ""),
-                            "weatherIcon" to WeatherDescriptionItem.UiIcon(images.icon),
-                            "temp" to WeatherDescriptionItem.UiDescription( it.value.main.temp.toString()),
-                            "feelsLikeTitle" to WeatherDescriptionItem.UiTitle( R.string.feels_like_ru),
-                            "feelsLikeTemp" to WeatherDescriptionItem.UiDescription(it.value.main.feelsLike.toString()),
-                            "windIcon" to WeatherDescriptionItem.UiIcon(R.drawable.ic_wind_icon),
-                            "wind" to WeatherDescriptionItem.UiDescription(it.value.wind.speed.toString()),
-                            "cloudinessDesc" to WeatherDescriptionItem.UiTitle( R.string.cloudiness_ru),
-                            "clouds" to WeatherDescriptionItem.UiDescription(it.value.clouds.all.toString())
-                        )
-
-                        val newInfo =
-                            updateWeatherInfoList(currentWeatherLiveData.value?.data?.info, updated)
-                        val newState = WeatherUIState(newInfo, images.background)
-
-                        Log.i(
-                            "TEST_TAG",
-                            "CurrentWeather ${currentWeatherLiveData.value?.data?.info?.size}"
-                        )
-                        currentWeatherLiveData.postValue(
-                            Response.success(
-                                newState
-                            ) as Response<WeatherUIState>
-                        )
+                        setMainWeather(it.value)
+                        setDescriptionWeather(it.value)
                     }
                 }
             }
         }
     }
 
-    fun getUVinfo(lat: Double, lon: Double) {
+    fun getUVInfo(lat: Double, lon: Double) {
         viewModelScope.launch {
             repository.getUVInfo(lat = lat, lon = lon).collect {
                 when (it) {
@@ -81,33 +57,98 @@ class MainViewModel @Inject constructor(
                     }
 
                     is Response.success -> {
-                        val updated = mapOf<String, WeatherDescriptionItem>(
-                            "uvValueDesc" to WeatherDescriptionItem.UiTitle(R.string.UV_index),
-                            "uvValue" to WeatherDescriptionItem.UiDescription(it.value.result.uv.toString()),
-                        )
-                        val newInfo =
-                            updateWeatherInfoList(currentWeatherLiveData.value?.data?.info, updated)
-                        val newState = WeatherUIState(newInfo, currentWeatherLiveData.value?.data?.background)
-                        Log.i(
-                            "TEST_TAG",
-                            "UVinfo ${currentWeatherLiveData.value?.data?.info?.size}"
-                        )
-                        currentWeatherLiveData.postValue(
-                            Response.success(
-                                newState
-                            ) as Response<WeatherUIState>
-                        )
+                        setMainWeather(it.value)
+                        setDescriptionWeather(it.value)
                     }
                 }
-
-                UVInfoLiveData.postValue(it)
             }
         }
     }
 
-    //fun UVDescription(UV: Int) = weather.UVDescription(UV)
+    private fun setDescriptionWeather(weather: CurrentWeather) {
+        val updated = mapOf<String, WeatherDescriptionItem>(
+            "maxWeather" to WeatherDescriptionItem.RowDescription(
+                icon = R.drawable.ic_temp_high_icon, description = weather.main.tempMax.toString()
+            ),
+            "minWeight" to WeatherDescriptionItem.RowDescription(
+                icon = R.drawable.ic_temp_low_icon, description = weather.main.tempMin.toString()
+            ),
+            "WeatherDescription" to WeatherDescriptionItem.RowDescription(
+                icon = R.drawable.ic_mist_icon, description = weather.weather.first().description
+            ),
+        )
+        val newInfo = updateWeatherInfoList(currentWeatherLiveData.value?.data?.info, updated)
+        val newState = WeatherUIState(newInfo, currentWeatherLiveData.value?.data?.background)
 
-    fun getImageStateSet(weatherId: Int) = weather.getImageStateSet(weatherId)
+        descriptionWeatherLiveData.postValue(
+            Response.success(
+                newState
+            ) as Response<WeatherUIState>
+        )
+    }
+
+    private fun setDescriptionWeather(uv: UVInfo) {
+        val updated = mapOf<String, WeatherDescriptionItem>(
+            "maxUVIndex" to WeatherDescriptionItem.RowDescription(
+                icon = R.drawable.ic_sun_uv_icon, description = uv.result.uvMax.toString()
+            ),
+            "UVDescription" to WeatherDescriptionItem.RowDescription(
+                icon = R.drawable.ic_sun_protection_icon,
+                description = UVDescription(uv.result.uvMax.toInt())
+            )
+        )
+        val newInfo = updateWeatherInfoList(currentWeatherLiveData.value?.data?.info, updated)
+        val newState = WeatherUIState(newInfo, currentWeatherLiveData.value?.data?.background)
+
+        descriptionWeatherLiveData.postValue(
+            Response.success(
+                newState
+            ) as Response<WeatherUIState>
+        )
+    }
+
+    private fun setMainWeather(weather: CurrentWeather) {
+        val images = getImageStateSet(weather.weather.first().id.toInt())
+        val updated = mapOf<String, WeatherDescriptionItem>(
+            "cityName" to WeatherDescriptionItem.UiDescription(weather.name ?: ""),
+            "weatherIcon" to WeatherDescriptionItem.UiIcon(images.icon),
+            "temp" to WeatherDescriptionItem.UiDescription(weather.main.temp.toString()),
+            "feelsLikeTitle" to WeatherDescriptionItem.UiTitle(R.string.feels_like_ru),
+            "feelsLikeTemp" to WeatherDescriptionItem.UiDescription(weather.main.feelsLike.toString()),
+            "windIcon" to WeatherDescriptionItem.UiIcon(R.drawable.ic_wind_icon),
+            "wind" to WeatherDescriptionItem.UiDescription(weather.wind.speed.toString()),
+            "cloudinessDesc" to WeatherDescriptionItem.UiTitle(R.string.cloudiness_ru),
+            "clouds" to WeatherDescriptionItem.UiDescription(weather.clouds.all.toString())
+        )
+
+        val newInfo = updateWeatherInfoList(currentWeatherLiveData.value?.data?.info, updated)
+        val newState = WeatherUIState(newInfo, images.background)
+
+        currentWeatherLiveData.postValue(
+            Response.success(
+                newState
+            ) as Response<WeatherUIState>
+        )
+    }
+
+    private fun setMainWeather(uv: UVInfo) {
+        val updated = mapOf<String, WeatherDescriptionItem>(
+            "uvValueDesc" to WeatherDescriptionItem.UiTitle(R.string.UV_index),
+            "uvValue" to WeatherDescriptionItem.UiDescription(uv.result.uv.toString()),
+        )
+        val newInfo = updateWeatherInfoList(currentWeatherLiveData.value?.data?.info, updated)
+        val newState = WeatherUIState(newInfo, currentWeatherLiveData.value?.data?.background)
+        Log.i(
+            "TEST_TAG", "UVinfo ${currentWeatherLiveData.value?.data?.info?.size}"
+        )
+        currentWeatherLiveData.postValue(
+            Response.success(
+                newState
+            ) as Response<WeatherUIState>
+        )
+    }
+
+    private fun getImageStateSet(weatherId: Int) = weather.getImageStateSet(weatherId)
 
     private fun updateWeatherInfoList(
         previousState: Map<String, WeatherDescriptionItem>?,
@@ -117,8 +158,7 @@ class MainViewModel @Inject constructor(
         val newState = previousState?.toMutableMap() ?: mutableMapOf()
 
         updated.forEach { entry ->
-            if (addOnlyIfPreviousInfoListNotEmpty && (newState.containsKey(entry.key) || newState.size > updated.size)
-                || addOnlyIfPreviousInfoListNotEmpty.not()) {
+            if (addOnlyIfPreviousInfoListNotEmpty && (newState.containsKey(entry.key) || newState.size > updated.size) || addOnlyIfPreviousInfoListNotEmpty.not()) {
                 newState[entry.key] = entry.value
             }
         }
@@ -129,4 +169,5 @@ class MainViewModel @Inject constructor(
         currentWeatherLiveData.postValue(Response.error(msg))
     }
 
+    fun UVDescription(uv: Int) = weather.UVDescription(uv)
 }

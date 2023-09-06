@@ -24,6 +24,7 @@ sealed class WeatherDescriptionItem(){
     data class UiTitle(val title: Int):WeatherDescriptionItem()
     data class UiIcon(val icon: Int):WeatherDescriptionItem()
     data class UiBigTitleIcon(val icon: Int):WeatherDescriptionItem()
+    data class RowDescription (val icon:Int, val description: String): WeatherDescriptionItem()
 }
 
 @Preview()
@@ -66,6 +67,21 @@ fun WeatherDescriptionItemBindOneInRow(
                     painter = painterResource(id =  weather.icon ?: R.drawable.ic_mist_icon),
                     contentDescription = weather.icon.toString(),
                     colorFilter = ColorFilter.tint(Color.White)
+                )
+            }
+            is WeatherDescriptionItem.RowDescription->{
+                Image(
+                    modifier = Modifier.height(60.dp),
+                    painter = painterResource(id =  weather.icon ?: R.drawable.ic_mist_icon),
+                    contentDescription = weather.icon.toString(),
+                    colorFilter = ColorFilter.tint(Color.White)
+                )
+
+                Text(
+                    modifier = Modifier.alpha(0.7f),
+                    text = weather.description,
+                    color = Color.White,
+                    fontSize = 20.sp
                 )
             }
         }
